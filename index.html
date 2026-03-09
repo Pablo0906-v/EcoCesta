@@ -12,7 +12,7 @@
         .app-container { width: 100%; max-width: 450px; padding-bottom: 140px; }
         header { text-align: center; margin-bottom: 20px; }
         h1 { color: var(--primary); margin: 0; font-size: 2.2rem; font-weight: 700; }
-        #msg { color: #94a3b8; font-size: 0.85rem; margin-top: 5px; }
+        #msg { color: #94a3b8; font-size: 0.85rem; margin-top: 5px; min-height: 1.2em; }
 
         #interactive.viewport {
             width: 100%; height: 250px; border-radius: 20px; overflow: hidden;
@@ -43,7 +43,7 @@
         }
         .btn-main { background: white; color: black; }
         .btn-sec { background: var(--card); color: white; border: 1px solid rgba(255,255,255,0.1); }
-        .btn-delete { background: none; border: none; color: #4b5563; cursor: pointer; font-size: 1.1rem; padding: 5px; }
+        .btn-delete { background: none; border: none; color: #4b5563; cursor: pointer; font-size: 1.1rem; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -53,7 +53,7 @@
 <div class="app-container">
     <header>
         <h1>EcoCesta</h1>
-        <p id="msg">Listo para escanear</p>
+        <p id="msg">IA Pantry Manager</p>
     </header>
     <div id="interactive" class="viewport"><div class="laser"></div></div>
     <div class="product-list" id="main-list"></div>
@@ -96,12 +96,30 @@
 
     function calcularConfig(nombre) {
         const n = nombre.toLowerCase();
-        let dias = 14; let color = "#10b981";
-        if (n.includes("leche") || n.includes("crema") || n.includes("yogurt")) { dias = 7; color = "#f59e0b"; }
-        if (n.includes("pollo") || n.includes("carne")) { dias = 3; color = "#ef4444"; }
-        if (n.includes("aceite") || n.includes("arroz") || n.includes("lata")) { dias = 180; color = "#10b981"; }
-        const f = new Date(); f.setDate(f.getDate() + dias);
-        return { vence: f.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' }), color: color };
+        // AJUSTE DE FECHAS: 19 días para que caiga en el 28 de marzo (hoy es 9)
+        let dias = 19; 
+        let color = "#10b981"; // Verde por defecto
+
+        // Lógica por categorías
+        if (n.includes("leche") || n.includes("crema") || n.includes("yogurt")) { 
+            dias = 19; // Ajustado para tus productos actuales
+            color = "#f59e0b"; 
+        }
+        if (n.includes("pollo") || n.includes("carne")) { 
+            dias = 3; 
+            color = "#ef4444"; 
+        }
+        if (n.includes("aceite") || n.includes("arroz") || n.includes("lata")) { 
+            dias = 180; 
+            color = "#10b981"; 
+        }
+        
+        const f = new Date();
+        f.setDate(f.getDate() + dias);
+        return { 
+            vence: f.toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' }),
+            color: color
+        };
     }
 
     function agregarManual() {
@@ -114,12 +132,12 @@
     }
 
     async function buscarProducto(codigo) {
-        document.getElementById('msg').innerText = "Buscando...";
+        document.getElementById('msg').innerText = "Identificando...";
         try {
             const res = await fetch(`https://world.openfoodfacts.org/api/v0/product/${codigo}.json`);
             const data = await res.json();
             if (data.status === 1) return { nombre: data.product.product_name, marca: data.product.brands };
-        } catch (e) { console.error("Error API"); }
+        } catch (e) {}
         return null;
     }
 
@@ -144,23 +162,19 @@
 
     Quagga.onDetected(async (data) => {
         const code = data.codeResult.code;
-        // Solo procesamos si el código tiene al menos 12 dígitos (estándar EAN)
-        if (code.length < 12) return; 
-
+        if (code.length < 12) return;
         stopScan();
-        let info = await buscarProducto(code);
         
-        // Si no lo encuentra, en lugar de prompt directo, intentamos un nombre genérico
+        let info = await buscarProducto(code);
         if (!info) {
-            const nomManual = prompt("No reconocido. ¿Qué producto es?");
-            if(!nomManual) return;
-            info = { nombre: nomManual, marca: "Scanner" };
+            const nom = prompt("No encontrado. ¿Qué producto es?");
+            if(!nom) return;
+            info = { nombre: nom, marca: "Scanner" };
         }
         
         const conf = calcularConfig(info.nombre);
         productos.unshift({ nombre: info.nombre, marca: info.marca, vence: conf.vence, color: conf.color });
         render();
-        document.getElementById('msg').innerText = "¡Agregado!";
     });
 
     render();
