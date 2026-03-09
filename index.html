@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EcoCesta | Smart Life Cycle</title>
+    <title>EcoCesta | Smart Inventory</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
     <style>
@@ -27,25 +27,31 @@
         .laser { position: absolute; top: 50%; left: 0; width: 100%; height: 2px; background: var(--primary); z-index: 10; }
         
         .product-list { display: flex; flex-direction: column; gap: 12px; }
-        .card { background: var(--card); padding: 18px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px var(--shadow); border: 1px solid rgba(128,128,128,0.1); animation: fadeIn 0.4s ease-out; }
+        .card { background: var(--card); padding: 18px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px var(--shadow); border: 1px solid rgba(128,128,128,0.1); animation: fadeIn 0.4s ease-out; position: relative; }
         
-        .info h3 { margin: 0; font-size: 1.05rem; font-weight: 700; text-transform: capitalize; }
-        .info p { margin: 4px 0 0; font-size: 0.82rem; color: var(--text-sec); line-height: 1.4; }
-        .days-tag { font-weight: 800; font-size: 0.75rem; text-transform: uppercase; padding: 2px 8px; border-radius: 6px; margin-top: 4px; display: inline-block; }
+        .info h3 { margin: 0; font-size: 1.05rem; font-weight: 700; text-transform: capitalize; padding-right: 25px; }
+        .info p { margin: 2px 0; font-size: 0.82rem; color: var(--text-sec); }
+        .days-tag { font-weight: 800; font-size: 0.7rem; text-transform: uppercase; padding: 2px 8px; border-radius: 6px; margin-top: 4px; display: inline-block; }
         
-        .status-dot { width: 12px; height: 12px; border-radius: 50%; margin-right: 12px; }
+        .calc-box { 
+            font-family: 'Courier New', monospace; font-size: 0.7rem; 
+            background: rgba(128,128,128,0.08); padding: 6px 10px; border-radius: 8px; 
+            margin-top: 8px; display: block; color: var(--text-main); border-left: 3px solid var(--primary);
+        }
+
+        .status-dot { width: 12px; height: 12px; border-radius: 50%; margin-right: 12px; flex-shrink: 0; }
         .nav-actions { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; gap: 12px; width: 90%; max-width: 400px; z-index: 1000; }
         .btn { flex: 1; padding: 18px; border-radius: 20px; font-weight: 700; border: none; cursor: pointer; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-main { background: var(--btn-bg); color: var(--btn-text); }
         .btn-sec { background: var(--card); color: var(--text-main); border: 1px solid rgba(128,128,128,0.2); }
-        .btn-delete { background: rgba(128,128,128,0.1); border: none; color: var(--text-sec); cursor: pointer; border-radius: 50%; width: 30px; height: 30px; }
+        .btn-delete { position: absolute; top: 18px; right: 18px; background: rgba(128,128,128,0.1); border: none; color: var(--text-sec); cursor: pointer; border-radius: 50%; width: 28px; height: 28px; font-size: 0.7rem; }
         
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body id="body-tag">
 <div class="app-container">
-    <header><h1>EcoCesta</h1><p id="msg">Calculando frescura...</p></header>
+    <header><h1>EcoCesta</h1><p id="msg">Sincronizando...</p></header>
     <div id="interactive" class="viewport"><div class="laser"></div></div>
     <div class="product-list" id="main-list"></div>
 </div>
@@ -57,15 +63,15 @@
 <script>
     let productos = JSON.parse(localStorage.getItem('ecocesta_data')) || [];
 
-    // --- CONFIGURACIÓN DE VIDA ÚTIL POR CATEGORÍA ---
-    const VIDA_UTIL = {
-        lacteos: { dias: 15, msg: "Consumir en 15 días (Lácteo)" },
-        carnes: { dias: 4, msg: "Consumir en 4 días (Proteína)" },
-        granos: { dias: 180, msg: "Dura 6 meses (Abarrotes)" },
-        especias: { dias: 365, msg: "Dura 1 año (Condimento)" },
-        cafe: { dias: 120, msg: "Consumir en 4 meses (Café)" },
-        snacks: { dias: 60, msg: "Consumir en 2 meses (Snack)" },
-        desconocido: { dias: 21, msg: "Consumir en 21 días (Genérico)" }
+    // --- CONFIGURACIÓN DE VIDA ÚTIL ---
+    const CATEGORIAS = {
+        lacteos: { dias: 15, msg: "Lácteo / Perecedero", color: "#f59e0b" },
+        carnes: { dias: 4, msg: "Proteína Fresca", color: "#ef4444" },
+        granos: { dias: 180, msg: "Abarrote Seco", color: "#10b981" },
+        especias: { dias: 365, msg: "Condimento / Sal", color: "#10b981" },
+        cafe: { dias: 120, msg: "Café / Polvos", color: "#10b981" },
+        snacks: { dias: 60, msg: "Snack / Galleta", color: "#10b981" },
+        desconocido: { dias: 21, msg: "Genérico", color: "#64748b" }
     };
 
     function aplicarTema() {
@@ -75,16 +81,15 @@
         document.getElementById('msg').innerText = (hora >= 18 || hora < 6) ? "Modo Noche 🌙" : "Modo Día ☀️";
     }
 
-    // --- CEREBRO DE CLASIFICACIÓN ---
     function obtenerCategoria(nombre) {
         const n = nombre.toLowerCase();
-        if (n.includes("leche") || n.includes("crema") || n.includes("yogurt") || n.includes("queso") || n.includes("arroz")) return VIDA_UTIL.lacteos;
-        if (n.includes("pollo") || n.includes("carne") || n.includes("jamon") || n.includes("pescado")) return VIDA_UTIL.carnes;
-        if (n.includes("frijol") || n.includes("pasta") || n.includes("aceite") || n.includes("lata")) return VIDA_UTIL.granos;
-        if (n.includes("sal") || n.includes("ajo") || n.includes("pimienta") || n.includes("clavo")) return VIDA_UTIL.especias;
-        if (n.includes("cafe") || n.includes("café")) return VIDA_UTIL.cafe;
-        if (n.includes("galleta") || n.includes("papas") || n.includes("sabritas") || n.includes("pan")) return VIDA_UTIL.snacks;
-        return VIDA_UTIL.desconocido;
+        if (n.includes("leche") || n.includes("crema") || n.includes("yogurt") || n.includes("queso") || n.includes("arroz")) return CATEGORIAS.lacteos;
+        if (n.includes("pollo") || n.includes("carne") || n.includes("jamon") || n.includes("pescado")) return CATEGORIAS.carnes;
+        if (n.includes("frijol") || n.includes("pasta") || n.includes("aceite") || n.includes("lata")) return CATEGORIAS.granos;
+        if (n.includes("sal") || n.includes("ajo") || n.includes("pimienta") || n.includes("clavo")) return CATEGORIAS.especias;
+        if (n.includes("cafe") || n.includes("café")) return CATEGORIAS.cafe;
+        if (n.includes("galleta") || n.includes("papas") || n.includes("sabritas")) return CATEGORIAS.snacks;
+        return CATEGORIAS.desconocido;
     }
 
     function render() {
@@ -96,18 +101,21 @@
         }
         list.innerHTML = '';
         productos.forEach((p, i) => {
-            const color = p.catMsg.includes("4 días") ? "#ef4444" : (p.catMsg.includes("15 días") ? "#f59e0b" : "#10b981");
-            list.innerHTML += `<div class="card">
-                <div style="display:flex; align-items:center;">
-                    <div class="status-dot" style="background-color:${color};"></div>
-                    <div class="info">
-                        <h3>${p.nombre}</h3>
-                        <p>${p.marca} • Ingreso: ${p.fechaIngreso}</p>
-                        <span class="days-tag" style="background:${color}22; color:${color};">${p.catMsg}</span>
+            list.innerHTML += `
+                <div class="card">
+                    <div style="display:flex; align-items:center; width:100%;">
+                        <div class="status-dot" style="background-color:${p.color};"></div>
+                        <div class="info" style="width:100%;">
+                            <h3>${p.nombre}</h3>
+                            <p><strong>${p.marca}</strong></p>
+                            <span class="days-tag" style="background:${p.color}22; color:${p.color};">${p.catMsg}</span>
+                            <div class="calc-box">
+                                📅 ${p.fechaIngreso} + ${p.vidaDias} días = <b>${p.venceFinal}</b>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <button class="btn-delete" onclick="eliminar(${i})">✕</button>
-            </div>`;
+                    <button class="btn-delete" onclick="eliminar(${i})">✕</button>
+                </div>`;
         });
     }
 
@@ -115,13 +123,20 @@
 
     function procesarProducto(nombre, marca) {
         const cat = obtenerCategoria(nombre);
-        const hoy = new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'short' });
+        const hoy = new Date();
+        const fechaIngresoStr = hoy.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' });
         
+        const fechaFinal = new Date();
+        fechaFinal.setDate(hoy.getDate() + cat.dias);
+        const venceFinalStr = fechaFinal.toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' });
+
         productos.unshift({ 
-            nombre, 
-            marca, 
-            fechaIngreso: hoy,
-            catMsg: cat.msg 
+            nombre, marca, 
+            fechaIngreso: fechaIngresoStr,
+            vidaDias: cat.dias,
+            venceFinal: venceFinalStr,
+            catMsg: cat.msg,
+            color: cat.color
         });
         render();
     }
@@ -160,7 +175,7 @@
         stopScan();
         let info = await buscarProducto(data.codeResult.code);
         if (!info) {
-            const nom = prompt("No reconocido. ¿Qué es?"); if(!nom) return;
+            const nom = prompt("No reconocido. ¿Qué producto es?"); if(!nom) return;
             info = { nombre: nom, marca: "Escaneado" };
         }
         procesarProducto(info.nombre, info.marca);
