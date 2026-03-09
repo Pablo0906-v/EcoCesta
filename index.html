@@ -3,63 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EcoCesta Pro | Smart App</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>EcoCesta | Pro Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { 
-            --primary: #10b981; --bg: #f8fafc; --card: #ffffff; 
-            --text-main: #1e293b; --text-sec: #64748b; 
-            --btn-bg: #1e293b; --btn-text: #ffffff; --shadow: rgba(0,0,0,0.05);
+            --primary: #10b981; 
+            --primary-bg: #e2fef4;
+            --bg: #f8fafc; 
+            --card: #ffffff; 
+            --text-main: #1e293b; 
+            --text-sec: #64748b; 
+            --border: rgba(128,128,128,0.1);
+            --shadow: 0 4px 12px rgba(0,0,0,0.03);
+            --danger: #ef4444;
+            --warning: #f59e0b;
         }
-        .dark-mode {
-            --bg: #0b0f1a; --card: #161d2f; --text-main: #ffffff; 
-            --text-sec: #94a3b8; --btn-bg: #ffffff; --btn-text: #000000; 
-            --shadow: rgba(0,0,0,0.3);
-        }
+        
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-main); margin: 0; padding: 0; transition: 0.5s; overflow-x: hidden; }
         
-        /* LOGIN */
-        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 5000; display: flex; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
-        .login-box { background: var(--card); padding: 40px 30px; border-radius: 30px; box-shadow: 0 10px 30px var(--shadow); width: 100%; max-width: 380px; text-align: center; }
-        .login-box h2 { margin-bottom: 25px; font-weight: 800; color: var(--primary); font-size: 2.2rem; }
-        .login-box input { width: 100%; padding: 15px; margin-bottom: 15px; border: 1px solid rgba(128,128,128,0.2); border-radius: 12px; background: var(--bg); color: var(--text-main); font-size: 1rem; box-sizing: border-box; }
-        
-        /* APP CONTENT */
-        #app-content { display: none; padding: 20px; min-height: 100vh; flex-direction: column; align-items: center; }
-        .app-inner { width: 100%; max-width: 450px; padding-bottom: 140px; }
-        
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; width: 100%; }
-        .profile-area { display: flex; align-items: center; gap: 10px; }
-        .avatar { width: 40px; height: 40px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
+        /* LOGIN Minimalista */
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 5000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+        .login-box { text-align: center; width: 100%; max-width: 320px; }
+        .login-box h2 { font-weight: 800; color: var(--primary); font-size: 2.2rem; margin-bottom: 30px; }
+        .login-box input { width: 100%; padding: 16px; margin-bottom: 15px; border: 1px solid rgba(128,128,128,0.2); border-radius: 14px; background: white; font-size: 1rem; box-sizing: border-box; }
 
-        /* SECCIÓN ESTADÍSTICAS */
-        .stats-container { background: var(--card); padding: 20px; border-radius: 24px; margin-bottom: 20px; box-shadow: 0 4px 12px var(--shadow); }
-        .stats-container h4 { margin: 0 0 15px 0; font-size: 0.9rem; color: var(--text-sec); text-transform: uppercase; letter-spacing: 1px; }
-        canvas { max-height: 180px; }
+        /* MAIN APP CONTAINER */
+        #app-content { display: none; min-height: 100vh; flex-direction: column; padding-bottom: 90px; }
+        
+        /* HEADER (Estilo como tu imagen) */
+        header { padding: 25px; display: flex; justify-content: space-between; align-items: center; }
+        header h1 { font-size: 1.6rem; font-weight: 800; margin: 0; }
+        header .greeting { font-size: 1rem; color: var(--text-sec); font-weight: 500; margin-top: 3px; }
+        .avatar { width: 45px; height: 45px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1.1rem; box-shadow: 0 4px 8px rgba(16,185,129,0.2); }
 
+        /* SECCIONES (Tabs) */
+        .page { display: none; padding: 0 20px; animation: fadeInPage 0.3s ease-out; width: 100%; max-width: 480px; align-self: center; box-sizing: border-box; }
+        .page.active { display: block; }
+        
+        .section-title { font-weight: 700; font-size: 0.9rem; color: var(--text-sec); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; margin-top: 10px; }
+
+        /* ESTILOS DE INICIO (Inventario FOTO) */
+        .product-card { background: var(--card); padding: 18px; border-radius: 20px; display: flex; align-items: center; box-shadow: var(--shadow); border: 1px solid var(--border); margin-bottom: 12px; cursor: pointer; position: relative; gap: 18px; }
+        
+        .product-photo { width: 45px; height: 45px; flex-shrink: 0; border-radius: 12px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; }
+        
+        .info h3 { margin: 0; font-size: 1.05rem; font-weight: 700; text-transform: capitalize; color: var(--text-main); }
+        .info p { margin: 2px 0; font-size: 0.85rem; color: var(--text-sec); }
+        .vence-text { font-weight: 700; font-size: 0.82rem; margin-top: 5px; display: block; padding: 3px 0px; border-top: 2px solid transparent; width: fit-content; }
+        
+        /* ESTILOS DE RECETAS AI */
+        .recipe-card { background: var(--primary-bg); border-left: 4px solid var(--primary); padding: 15px; border-radius: 12px; margin-bottom: 10px; }
+        .recipe-card h4 { margin: 0; color: var(--primary); }
+        .recipe-card p { margin: 5px 0 0; font-size: 0.9rem; color: var(--text-main); }
+
+        /* ESTILOS DE LISTA */
+        .log-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+        .log-item.added { color: var(--primary); }
+
+        /* ESTILOS DE PERFIL */
+        .profile-field { display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid var(--border); }
+        .profile-field strong { color: var(--text-main); }
+        .profile-field span { color: var(--text-sec); font-weight: 500; }
+
+        /* BOTÓN FLOTANTE (Escanear) */
         #interactive.viewport { width: 100%; height: 250px; border-radius: 24px; overflow: hidden; background: #000; margin-bottom: 25px; border: 4px solid var(--card); display: none; position: relative; }
         .laser { position: absolute; top: 50%; left: 0; width: 100%; height: 2px; background: var(--primary); z-index: 10; }
-        
-        .product-list { display: flex; flex-direction: column; gap: 12px; }
-        .card { background: var(--card); padding: 18px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px var(--shadow); border: 1px solid rgba(128,128,128,0.1); animation: fadeIn 0.4s ease-out; position: relative; cursor: pointer; }
-        
-        .info h3 { margin: 0; font-size: 1.1rem; font-weight: 700; text-transform: capitalize; color: var(--text-main); }
-        .info p { margin: 2px 0; font-size: 0.85rem; color: var(--text-sec); }
-        .vence-text { font-weight: 700; font-size: 0.88rem; margin-top: 8px; display: block; }
+        .scan-action { position: fixed; bottom: 100px; right: 20px; z-index: 900; }
+        .btn-circle { width: 65px; height: 65px; border-radius: 50%; background: var(--primary); color: white; border: none; font-size: 2rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 16px rgba(16,185,129,0.3); cursor: pointer; transition: 0.2s; }
+        .btn-circle:active { transform: scale(0.95); }
 
-        /* MODALES */
-        #modal-ia { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 6000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-        .modal-content { background: var(--card); width: 85%; max-width: 350px; padding: 30px; border-radius: 28px; text-align: center; }
-        
-        .nav-actions { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; gap: 12px; width: 90%; max-width: 400px; z-index: 1000; }
-        .btn { flex: 1; padding: 18px; border-radius: 20px; font-weight: 700; border: none; cursor: pointer; }
-        .btn-main { background: var(--btn-bg); color: var(--btn-text); }
-        .btn-sec { background: var(--card); color: var(--text-main); border: 1px solid rgba(128,128,128,0.2); }
-        .btn-delete { position: absolute; top: 18px; right: 18px; background: rgba(128,128,128,0.1); border: none; color: var(--text-sec); border-radius: 50%; width: 28px; height: 28px; }
+        /* NAV BAR INFERIOR */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--card); display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid var(--border); z-index: 1000; box-shadow: 0 -4px 10px rgba(0,0,0,0.02); }
+        .nav-item { border: none; background: none; color: var(--text-sec); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: 0.2s; }
+        .nav-item.active { color: var(--primary); }
+        .nav-icon { font-size: 1.2rem; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        .btn-delete { position: absolute; top: 18px; right: 18px; background: rgba(128,128,128,0.1); border: none; color: var(--text-sec); border-radius: 50%; width: 28px; height: 28px; font-size: 0.7rem; cursor: pointer; z-index: 10; }
+
+        @keyframes fadeInPage { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body id="body-tag">
@@ -67,152 +90,206 @@
 <div id="login-screen">
     <div class="login-box">
         <h2>EcoCesta</h2>
-        <input type="text" id="user" placeholder="Nombre de usuario">
-        <input type="password" id="pass" placeholder="Contraseña">
-        <button class="btn btn-main" style="width: 100%;" onclick="login()">Iniciar Sesión</button>
-        <p style="font-size: 0.8rem; color: var(--text-sec); margin-top: 15px;">Tus datos se guardan de forma local (Offline Ready)</p>
+        <input type="text" id="user-input" placeholder="Nombre de usuario">
+        <input type="password" placeholder="Contraseña">
+        <button class="btn-primary" style="width:100%; padding: 18px; border-radius: 16px; border:none; background: var(--primary); color:white; font-weight:700; font-size:1.1rem; cursor:pointer;" onclick="login()">Iniciar Sesión</button>
     </div>
 </div>
 
-<div id="modal-ia" onclick="cerrarIA()">
+<div id="modal-ia" onclick="cerrarIA()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:6000; align-items:center; justify-content:center; backdrop-filter:blur(5px);">
     <div class="modal-content" onclick="event.stopPropagation()">
-        <h2 id="ia-titulo">Consejo de amigo</h2>
+        <h2 id="ia-titulo">Consejo Pro</h2>
         <p id="ia-consejo"></p>
-        <button class="btn btn-main" style="width: 100%; margin-top: 20px;" onclick="cerrarIA()">¡Gracias!</button>
+        <button class="btn-primary" style="width:100%; margin-top:20px; padding: 15px; background:var(--primary); color:white; border:none; border-radius: 12px; font-weight:700;" onclick="cerrarIA()">¡Entendido!</button>
     </div>
 </div>
 
 <div id="app-content">
-    <div class="app-inner">
-        <header>
-            <div>
-                <h1 style="font-size: 1.8rem;">EcoCesta</h1>
-                <p id="msg" style="margin:0;">Cargando...</p>
-            </div>
-            <div class="profile-area">
-                <span id="user-display" style="font-weight: 600; font-size: 0.9rem;"></span>
-                <div class="avatar" id="user-avatar">?</div>
-            </div>
-        </header>
-
-        <div class="stats-container">
-            <h4>Análisis de Inventario</h4>
-            <canvas id="myChart"></canvas>
+    <header>
+        <div>
+            <h1><span style="color:var(--primary);">Eco</span>Cesta</h1>
+            <div class="greeting">¡Hola, <span id="user-display">Diego</span>!</div>
         </div>
+        <div class="avatar" id="user-avatar">?</div>
+    </header>
 
+    <div id="page-inicio" class="page active">
+        <h3 class="section-title">En tu despensa</h3>
+        
         <div id="interactive" class="viewport"><div class="laser"></div></div>
         <div class="product-list" id="main-list"></div>
+        
+        <div class="scan-action">
+            <button class="btn-circle" onclick="toggleScanner()">📸</button>
+        </div>
     </div>
 
-    <div class="nav-actions">
-        <button class="btn btn-sec" onclick="agregarManual()">✍️ Manual</button>
-        <button class="btn btn-main" onclick="toggleScanner()" id="scanBtn">📸 Escanear</button>
+    <div id="page-recetas" class="page">
+        <h3 class="section-title">Recetas Sugeridas (IA)</h3>
+        <p style="color:var(--text-sec); font-size: 0.9rem; margin-bottom: 20px;">Basado en los ingredientes que tienes próximos a vencer.</p>
+        
+        <div id="recipes-list">
+            <p style="text-align:center; color:gray; font-style:italic;">Agrega productos para recibir sugerencias.</p>
+        </div>
     </div>
+
+    <div id="page-lista" class="page">
+        <h3 class="section-title">Registro de este mes</h3>
+        <p style="color:var(--text-sec); font-size: 0.9rem; margin-bottom: 20px;">Todo lo ingresado o consumido en los últimos 30 días.</p>
+        
+        <div id="log-list" style="background:var(--card); padding:20px; border-radius:20px; box-shadow:var(--shadow);">
+            <div class="log-item added"><strong>+ Media Crema</strong> • Ingresado el 8 Mar</div>
+            <div class="log-item added"><strong>+ Pimienta Negra</strong> • Ingresado el 8 Mar</div>
+        </div>
+    </div>
+
+    <div id="page-perfil" class="page">
+        <h3 class="section-title">Tu Cuenta</h3>
+        
+        <div style="background:var(--card); padding:20px; border-radius:20px; box-shadow:var(--shadow);">
+            <div class="profile-field">
+                <strong>Nombre</strong>
+                <span id="p-nombre">Diego A.</span>
+            </div>
+            <div class="profile-field">
+                <strong>Número</strong>
+                <span>983 123 4567</span>
+            </div>
+            <div class="profile-field">
+                <strong>Correo</strong>
+                <span>diego.pro@uni.edu.mx</span>
+            </div>
+            <div class="profile-field">
+                <strong>Membresía</strong>
+                <span style="color:var(--primary);">Eco Pro</span>
+            </div>
+            <button class="btn-primary" style="width:100%; margin-top: 25px; background:var(--text-main); color:white; border:none; padding:15px; border-radius:12px; font-weight:700;" onclick="alert('Cerrando sesión...')">Cerrar Sesión</button>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <button class="nav-item active" onclick="navPage('inicio', this)">
+            <span class="nav-icon">🏠</span>
+            Inicio
+        </button>
+        <button class="nav-item" onclick="navPage('recetas', this)">
+            <span class="nav-icon">🧑‍🍳</span>
+            Recetas
+        </button>
+        <button class="nav-item" onclick="navPage('lista', this)">
+            <span class="nav-icon">📝</span>
+            Mi Lista
+        </button>
+        <button class="nav-item" onclick="navPage('perfil', this)">
+            <span class="nav-icon">👤</span>
+            Perfil
+        </button>
+    </nav>
 </div>
 
 <script>
     let productos = JSON.parse(localStorage.getItem('ecocesta_data')) || [];
-    let myChart = null;
 
-    // --- PUNTO 3: PERSISTENCIA DE SESIÓN ---
+    // --- LÓGICA DE LOGIN Y PERSISTENCIA ---
     window.onload = () => {
         const sesion = localStorage.getItem('ecocesta_session');
         if (sesion) {
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('app-content').style.display = 'flex';
-            document.getElementById('user-display').innerText = sesion;
-            document.getElementById('user-avatar').innerText = sesion.charAt(0).toUpperCase();
+            const display = sesion.split(" ")[0]; // Solo primer nombre
+            document.getElementById('user-display').innerText = display;
+            document.getElementById('p-nombre').innerText = sesion;
+            document.getElementById('user-avatar').innerText = display.charAt(0).toUpperCase();
             inicializarApp();
         }
     };
 
     function login() {
-        const u = document.getElementById('user').value;
-        if(u !== "") {
-            localStorage.setItem('ecocesta_session', u); // Guardar sesión
-            location.reload(); // Recargar para activar onload
+        const u = document.getElementById('user-input').value;
+        if(u !== "") { localStorage.setItem('ecocesta_session', u); location.reload(); }
+        else { alert("Por favor ingresa tu nombre"); }
+    }
+
+    // --- SISTEMA DE NAVEGACIÓN ENTRE TABS ---
+    function navPage(pageId, navElement) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.getElementById(`page-${pageId}`).classList.add('active');
+        navElement.classList.add('active');
+        if (pageId === 'recetas') generarRecetas();
+    }
+
+    function inicializarApp() { render(); }
+
+    // --- TAB 2: RECETAS (Generador de Bosquejo IA) ---
+    function generarRecetas() {
+        const list = document.getElementById('recipes-list');
+        list.innerHTML = '';
+        const proximos = productos.filter(p => p.catLabel === "Lácteo" || p.catLabel === "Proteína");
+        if (proximos.length === 0) {
+            list.innerHTML = '<p style="text-align:center; color:gray;">Agrega perecederos para recibir sugerencias de cocina.</p>';
+            return;
         }
-    }
-
-    function inicializarApp() {
-        aplicarTema();
-        actualizarGrafica();
-        render();
-        checarNotificaciones(); // PUNTO 2
-    }
-
-    // --- PUNTO 5: GRÁFICAS DE DESPERDICIO ---
-    function actualizarGrafica() {
-        const ctx = document.getElementById('myChart').getContext('2d');
-        const conteo = { 'Lácteo': 0, 'Proteína': 0, 'Abarrote': 0, 'Otros': 0 };
-        
-        productos.forEach(p => {
-            if (conteo[p.catLabel] !== undefined) conteo[p.catLabel]++;
-            else conteo['Otros']++;
-        });
-
-        if (myChart) myChart.destroy();
-        myChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: Object.keys(conteo),
-                datasets: [{
-                    data: Object.values(conteo),
-                    backgroundColor: ['#f59e0b', '#ef4444', '#10b981', '#64748b'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                plugins: { legend: { position: 'right', labels: { color: getComputedStyle(document.body).getPropertyValue('--text-main') } } }
+        const recetaMap = {
+            'Lácteo': { titulo: 'Cremoso Bowl de Desayuno', ing: 'Media Crema + Fruta + Avena' },
+            'Proteína': { titulo: 'Pollo al Sartén Express', ing: 'Pechuga + Arroz integral + Verduras' }
+        };
+        const categoriasVistas = new Set();
+        proximos.forEach(p => {
+            if (!categoriasVistas.has(p.catLabel) && recetaMap[p.catLabel]) {
+                const rec = recetaMap[p.catLabel];
+                list.innerHTML += `
+                    <div class="recipe-card">
+                        <h4>🧑‍🍳 ${rec.titulo}</h4>
+                        <p>Usa tu <strong>${p.nombre}</strong></p>
+                        <p style="font-size: 0.8rem; color: var(--text-sec);">🛒 Ingredientes: ${rec.ing}</p>
+                    </div>`;
+                categoriasVistas.add(p.catLabel);
             }
         });
     }
 
-    // --- PUNTO 2: LÓGICA DE ALERTAS ---
-    function checarNotificaciones() {
-        const hoy = new Date();
-        const productosProximos = productos.filter(p => {
-            const vence = new Date(p.venceRaw);
-            const dif = (vence - hoy) / (1000 * 60 * 60 * 24);
-            return dif >= 0 && dif <= 2; // Vence en 2 días o menos
-        });
-
-        if (productosProximos.length > 0) {
-            document.getElementById('msg').innerText = `⚠️ Tienes ${productosProximos.length} productos por vencer`;
-            document.getElementById('msg').style.color = "#ef4444";
-        }
+    // --- TAB 3: LISTA (Historial) ---
+    function registrarHistorial(nombre) {
+        const logList = document.getElementById('log-list');
+        const hoy = new Date().toLocaleDateString('es-MX', {day:'numeric', month:'short'});
+        logList.innerHTML = `<div class="log-item added"><strong>+ ${nombre}</strong> • Registrado el ${hoy}</div>` + logList.innerHTML;
     }
 
+    // --- CONFIGURACIÓN DE VIDA ÚTIL Y DICCIONARIO DE FOTOS (Nuevo) ---
     const CATEGORIAS = {
-        lacteos: { dias: 15, label: "Lácteo", color: "#f59e0b", care: "No lo dejes en la puerta del refri, mejor al fondo." },
-        carnes: { dias: 4, label: "Proteína", color: "#ef4444", care: "Si no lo cocinas mañana, congélalo ya." },
-        granos: { dias: 180, label: "Abarrote", color: "#10b981", care: "Frasco de vidrio si hay humedad." },
-        otros: { dias: 21, label: "Otros", color: "#64748b", care: "Revísalo bien antes de usar." }
+        lacteos: { dias: 15, label: "Lácteo", color: "--warning", care: "Mantener en la parte media del refri. No dejes el envase abierto mucho tiempo.", foto: "🥛" },
+        carnes: { dias: 4, label: "Proteína", color: "--danger", care: "Brother, esto se echa a perder rápido. Si no lo cocinas mañana, congélalo ya.", foto: "🍗" },
+        despensa: { dias: 90, label: "Despensa", color: "--primary", care: "Lugar fresco, seco y opaco.", foto: "🍚" },
+        otros: { dias: 21, label: "Varios", color: "--text-sec", care: "Revisar olor y textura antes de consumir.", foto: "🧺" }
     };
 
     function obtenerCategoria(nombre) {
         const n = nombre.toLowerCase();
         if (n.includes("leche") || n.includes("crema") || n.includes("queso")) return CATEGORIAS.lacteos;
         if (n.includes("pollo") || n.includes("carne") || n.includes("jamon")) return CATEGORIAS.carnes;
-        if (n.includes("frijol") || n.includes("pasta") || n.includes("arroz")) return CATEGORIAS.granos;
+        if (n.includes("arroz") || n.includes("frijol") || n.includes("pasta") || n.includes("pimienta")) return CATEGORIAS.despensa;
         return CATEGORIAS.otros;
     }
 
     function render() {
         const list = document.getElementById('main-list');
         localStorage.setItem('ecocesta_data', JSON.stringify(productos));
-        list.innerHTML = productos.length === 0 ? '<p style="text-align:center; color:gray;">Cesta vacía</p>' : '';
-        
+        if (productos.length === 0) {
+            list.innerHTML = `<div style="text-align:center; padding-top:60px;"><p style="color:var(--text-sec);">No hay productos registrados</p></div>`;
+            return;
+        }
+        list.innerHTML = '';
         productos.forEach((p, i) => {
             list.innerHTML += `
-                <div class="card" onclick="abrirIA('${p.nombre}', '${p.care}')">
-                    <div style="display:flex; align-items:center;">
-                        <div class="status-dot" style="background-color:${p.color};"></div>
-                        <div class="info">
-                            <h3>${p.nombre}</h3>
-                            <p>${p.marca} • Ingreso: ${p.fechaIngreso}</p>
-                            <span class="vence-text" style="color:${p.color};">Vence: ${p.venceFinal}</span>
-                        </div>
+                <div class="product-card" onclick="abrirIA('${p.nombre}', '${p.care}')">
+                    <div class="product-photo">${p.foto}</div>
+                    <div class="info" style="width:100%;">
+                        <h3>${p.nombre}</h3>
+                        <p>${p.marca} • Ingreso: ${p.fechaIngreso}</p>
+                        <span class="vence-text" style="color:var(${p.color}); border-top: 2px solid var(${p.color});">
+                            Vence: ${p.venceFinal}
+                        </span>
                     </div>
                     <button class="btn-delete" onclick="event.stopPropagation(); eliminar(${i});">✕</button>
                 </div>`;
@@ -222,31 +299,22 @@
     function procesarProducto(nombre, marca) {
         const cat = obtenerCategoria(nombre);
         const hoy = new Date();
-        const fechaVence = new Date();
-        fechaVence.setDate(hoy.getDate() + cat.dias);
+        const fechaIngresoStr = hoy.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' });
+        const fechaFinal = new Date();
+        fechaFinal.setDate(hoy.getDate() + cat.dias);
+        const venceFinalStr = fechaFinal.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
-        productos.unshift({ 
-            nombre, marca, 
-            fechaIngreso: hoy.toLocaleDateString('es-MX', {day:'numeric', month:'short'}),
-            venceFinal: fechaVence.toLocaleDateString('es-MX', {day:'2-digit', month:'2-digit', year:'numeric'}),
-            venceRaw: fechaVence.toISOString(), // Para cálculos de alertas
-            color: cat.color,
-            care: cat.care,
-            catLabel: cat.label
-        });
-        actualizarGrafica();
+        productos.unshift({ nombre, marca, fechaIngreso: fechaIngresoStr, venceFinal: venceFinalStr, color: cat.color, care: cat.care, catLabel: cat.label, foto: cat.foto });
+        registrarHistorial(nombre);
         render();
-        checarNotificaciones();
     }
 
-    function eliminar(i) { productos.splice(i, 1); actualizarGrafica(); render(); checarNotificaciones(); }
-    function abrirIA(n, c) { document.getElementById('ia-consejo').innerText = c; document.getElementById('modal-ia').style.display = 'flex'; }
+    function eliminar(i) { productos.splice(i, 1); render(); }
+    function abrirIA(n, c) { document.getElementById('ia-titulo').innerText = n; document.getElementById('ia-consejo').innerText = c; document.getElementById('modal-ia').style.display = 'flex'; }
     function cerrarIA() { document.getElementById('modal-ia').style.display = 'none'; }
-    function aplicarTema() { if (new Date().getHours() >= 18 || new Date().getHours() < 6) document.body.classList.add('dark-mode'); }
-    
-    // Simulación de Escáner y Manual (Igual que antes)
     function agregarManual() { const n = prompt("Nombre:"); const m = prompt("Marca:"); if(n) procesarProducto(n, m); }
-    function toggleScanner() { alert("Simulando cámara para el prototipo..."); agregarManual(); }
+    function toggleScanner() { alert("Simulando cámara... Ingresa el nombre del producto."); agregarManual(); }
+
 </script>
 </body>
 </html>
