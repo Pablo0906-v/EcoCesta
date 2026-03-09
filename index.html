@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EcoCesta | Smart Pantry</title>
+    <title>EcoCesta Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
     <style>
@@ -14,7 +14,6 @@
         h1 { color: var(--primary); margin: 0; font-size: 2.2rem; font-weight: 700; }
         #msg { color: #94a3b8; font-size: 0.85rem; margin-top: 5px; }
 
-        /* Cámara */
         #interactive.viewport {
             width: 100%; height: 250px; border-radius: 20px; overflow: hidden;
             background: #000; margin-bottom: 20px; border: 2px solid var(--primary);
@@ -23,7 +22,6 @@
         #interactive.viewport video { width: 100%; height: 100%; object-fit: cover; }
         .laser { position: absolute; top: 50%; left: 0; width: 100%; height: 2px; background: red; box-shadow: 0 0 10px red; z-index: 10; }
 
-        /* Lista */
         .product-list { display: flex; flex-direction: column; gap: 10px; }
         .card { 
             background: var(--card); padding: 15px; border-radius: 18px; 
@@ -34,20 +32,18 @@
         .info p { margin: 3px 0 0; font-size: 0.8rem; color: #94a3b8; }
         .status-dot { width: 10px; height: 10px; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px currentColor; }
 
-        /* Botonera Inferior */
         .nav-actions {
             position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%);
             display: flex; gap: 10px; width: 90%; max-width: 400px; z-index: 1000;
         }
         .btn {
-            flex: 1; padding: 15px; border-radius: 50px; font-weight: 700; border: none;
-            cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 8px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.4); transition: transform 0.2s;
+            flex: 1; padding: 16px; border-radius: 50px; font-weight: 700; border: none;
+            cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 8px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
         }
-        .btn:active { transform: scale(0.95); }
         .btn-main { background: white; color: black; }
         .btn-sec { background: var(--card); color: white; border: 1px solid rgba(255,255,255,0.1); }
-        .btn-delete { background: none; border: none; color: #4b5563; cursor: pointer; font-size: 1.1rem; }
+        .btn-delete { background: none; border: none; color: #4b5563; cursor: pointer; font-size: 1.1rem; padding: 5px; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -57,9 +53,8 @@
 <div class="app-container">
     <header>
         <h1>EcoCesta</h1>
-        <p id="msg">IA Pantry Manager</p>
+        <p id="msg">Listo para escanear</p>
     </header>
-
     <div id="interactive" class="viewport"><div class="laser"></div></div>
     <div class="product-list" id="main-list"></div>
 </div>
@@ -101,38 +96,30 @@
 
     function calcularConfig(nombre) {
         const n = nombre.toLowerCase();
-        let dias = 14;
-        let color = "#10b981"; // Verde
-
+        let dias = 14; let color = "#10b981";
         if (n.includes("leche") || n.includes("crema") || n.includes("yogurt")) { dias = 7; color = "#f59e0b"; }
         if (n.includes("pollo") || n.includes("carne")) { dias = 3; color = "#ef4444"; }
         if (n.includes("aceite") || n.includes("arroz") || n.includes("lata")) { dias = 180; color = "#10b981"; }
-        
-        const f = new Date();
-        f.setDate(f.getDate() + dias);
-        return { 
-            vence: f.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' }),
-            color: color
-        };
+        const f = new Date(); f.setDate(f.getDate() + dias);
+        return { vence: f.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' }), color: color };
     }
 
     function agregarManual() {
         const nombre = prompt("Nombre del producto:");
         if (!nombre) return;
-        const marca = prompt("Marca (opcional):", "Genérico");
+        const marca = prompt("Marca:", "Genérico");
         const conf = calcularConfig(nombre);
-        
         productos.unshift({ nombre, marca, vence: conf.vence, color: conf.color });
         render();
     }
 
     async function buscarProducto(codigo) {
-        document.getElementById('msg').innerText = "Identificando...";
+        document.getElementById('msg').innerText = "Buscando...";
         try {
             const res = await fetch(`https://world.openfoodfacts.org/api/v0/product/${codigo}.json`);
             const data = await res.json();
             if (data.status === 1) return { nombre: data.product.product_name, marca: data.product.brands };
-        } catch (e) {}
+        } catch (e) { console.error("Error API"); }
         return null;
     }
 
@@ -157,18 +144,23 @@
 
     Quagga.onDetected(async (data) => {
         const code = data.codeResult.code;
-        if (code.length < 10) return;
+        // Solo procesamos si el código tiene al menos 12 dígitos (estándar EAN)
+        if (code.length < 12) return; 
+
         stopScan();
-        
         let info = await buscarProducto(code);
+        
+        // Si no lo encuentra, en lugar de prompt directo, intentamos un nombre genérico
         if (!info) {
-            const nom = prompt("No encontrado en la nube. ¿Nombre del producto?");
-            info = { nombre: nom || "Producto Nuevo", marca: "Scanner" };
+            const nomManual = prompt("No reconocido. ¿Qué producto es?");
+            if(!nomManual) return;
+            info = { nombre: nomManual, marca: "Scanner" };
         }
         
         const conf = calcularConfig(info.nombre);
         productos.unshift({ nombre: info.nombre, marca: info.marca, vence: conf.vence, color: conf.color });
         render();
+        document.getElementById('msg').innerText = "¡Agregado!";
     });
 
     render();
