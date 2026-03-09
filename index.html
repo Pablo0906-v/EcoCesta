@@ -3,39 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EcoCesta | Pro Scanner</title>
+    <title>EcoCesta | Smart Pantry</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
     <style>
         :root { --primary: #10b981; --bg: #0b0f1a; --card: #161d2f; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; margin: 0; padding: 20px; display: flex; justify-content: center; }
-        .app-container { width: 100%; max-width: 450px; padding-bottom: 100px; }
-        header { text-align: center; margin-bottom: 20px; }
-        h1 { color: var(--primary); margin: 0; font-size: 2.2rem; letter-spacing: -1px; }
-        #msg { color: #94a3b8; font-size: 0.9rem; margin-top: 5px; min-height: 1.2em; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh; }
+        .app-container { width: 100%; max-width: 450px; padding-bottom: 120px; }
+        header { text-align: center; margin-bottom: 25px; padding-top: 20px; }
+        h1 { color: var(--primary); margin: 0; font-size: 2.5rem; letter-spacing: -1px; font-weight: 700; }
+        #msg { color: #94a3b8; font-size: 0.9rem; margin-top: 8px; min-height: 1.5em; }
 
+        /* Contenedor de Cámara */
         #interactive.viewport {
-            width: 100%; height: 250px; border-radius: 20px; overflow: hidden;
-            background: #000; margin-bottom: 20px; border: 2px solid var(--primary);
-            display: none; position: relative;
+            width: 100%; height: 260px; border-radius: 24px; overflow: hidden;
+            background: #000; margin-bottom: 25px; border: 2px solid var(--primary);
+            display: none; position: relative; box-shadow: 0 0 30px rgba(16, 185, 129, 0.2);
         }
         #interactive.viewport video { width: 100%; height: 100%; object-fit: cover; }
-        .laser { position: absolute; top: 50%; left: 0; width: 100%; height: 2px; background: rgba(255,0,0,0.7); box-shadow: 0 0 10px red; z-index: 10; }
+        .laser { position: absolute; top: 50%; left: 0; width: 100%; height: 2px; background: #ef4444; box-shadow: 0 0 12px #ef4444; z-index: 10; }
 
+        /* Lista de Productos */
         .product-list { display: flex; flex-direction: column; gap: 12px; }
-        .card { background: var(--card); padding: 18px; border-radius: 18px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.05); animation: fadeIn 0.3s ease; }
-        .info h3 { margin: 0; font-size: 1rem; color: #fff; text-transform: capitalize; }
-        .info p { margin: 4px 0 0; font-size: 0.8rem; color: #94a3b8; }
-        .status-dot { width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 0 8px currentColor; }
-
-        .btn-scan {
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-            background: white; color: black; padding: 16px 40px; border-radius: 50px;
-            font-weight: bold; border: none; cursor: pointer; display: flex; align-items: center; gap: 10px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5); font-size: 1rem; z-index: 1000;
+        .card { 
+            background: var(--card); padding: 20px; border-radius: 20px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            border: 1px solid rgba(255,255,255,0.05); animation: slideIn 0.4s ease-out;
         }
+        .info h3 { margin: 0; font-size: 1.1rem; color: #fff; text-transform: capitalize; }
+        .info p { margin: 5px 0 0; font-size: 0.85rem; color: #94a3b8; }
+        .status-dot { width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 0 10px currentColor; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* Estado Vacío */
+        .empty-state { text-align: center; margin-top: 60px; color: #4b5563; }
+        .empty-state span { font-size: 3rem; display: block; margin-bottom: 15px; }
+
+        /* Botón de Escaneo */
+        .btn-scan {
+            position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%);
+            background: #fff; color: #000; padding: 18px 45px; border-radius: 50px;
+            font-weight: 800; border: none; cursor: pointer; display: flex; align-items: center; gap: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6); font-size: 1rem; z-index: 1000;
+            transition: all 0.2s ease;
+        }
+        .btn-scan:active { transform: translateX(-50%) scale(0.95); }
+
+        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -43,7 +56,7 @@
 <div class="app-container">
     <header>
         <h1>EcoCesta</h1>
-        <p id="msg">Enfoca un código de barras real</p>
+        <p id="msg">Gestiona tus alimentos con IA</p>
     </header>
 
     <div id="interactive" class="viewport"><div class="laser"></div></div>
@@ -55,12 +68,22 @@
 </button>
 
 <script>
-    let productos = [
-        { nombre: "Leche Orgánica", marca: "Lala", vence: "Mar 16, 2026", color: "#10b981" }
-    ];
+    // LISTA INICIAL VACÍA
+    let productos = [];
 
     function render() {
         const list = document.getElementById('main-list');
+        
+        if (productos.length === 0) {
+            list.innerHTML = `
+                <div class="empty-state">
+                    <span>🧺</span>
+                    <p>Tu EcoCesta está vacía.</p>
+                    <p style="font-size: 0.8rem;">Escanea un código para registrarlo.</p>
+                </div>`;
+            return;
+        }
+
         list.innerHTML = '';
         productos.forEach(p => {
             list.innerHTML += `
@@ -77,7 +100,7 @@
     let isScanning = false;
 
     async function buscarProducto(codigo) {
-        document.getElementById('msg').innerText = "Buscando: " + codigo;
+        document.getElementById('msg').innerText = "Consultando base de datos mundial...";
         try {
             const res = await fetch(`https://world.openfoodfacts.org/api/v0/product/${codigo}.json`);
             const data = await res.json();
@@ -85,12 +108,12 @@
             if (data.status === 1 && data.product.product_name) {
                 return {
                     nombre: data.product.product_name,
-                    marca: data.product.brands || "Marca genérica"
+                    marca: data.product.brands || "Marca Genérica"
                 };
             }
         } catch (e) { console.error("Error API:", e); }
-        // Si no lo encuentra, devolvemos el código para saber qué leyó
-        return { nombre: "Desconocido (" + codigo.slice(-4) + ")", marca: "Código: " + codigo };
+        // Si no está en la base de datos mundial
+        return { nombre: "Producto " + codigo.slice(-4), marca: "Código: " + codigo };
     }
 
     function toggleScanner() {
@@ -99,7 +122,8 @@
         
         if (!isScanning) {
             view.style.display = 'block';
-            btnText.innerText = "CANCELAR";
+            btnText.innerText = "DETENER CÁMARA";
+            document.getElementById('msg').innerText = "Enfoca el código de barras";
             isScanning = true;
             
             Quagga.init({
@@ -109,10 +133,10 @@
                     target: view, 
                     constraints: { facingMode: "environment", focusMode: "continuous" } 
                 },
-                decoder: { readers: ["ean_reader"] }, // Forzamos EAN para evitar lecturas parciales
+                decoder: { readers: ["ean_reader"] },
                 locate: true
             }, (err) => {
-                if (err) return;
+                if (err) { alert("Error al iniciar cámara. Usa Live Server."); return; }
                 Quagga.start();
             });
         } else {
@@ -124,34 +148,35 @@
         Quagga.stop();
         document.getElementById('interactive').style.display = 'none';
         document.getElementById('btnText').innerText = "ESCANEAR PRODUCTO";
+        document.getElementById('msg').innerText = "Listo para gestionar";
         isScanning = false;
     }
 
-    // Validación para evitar números incompletos
     Quagga.onDetected(async (data) => {
         const code = data.codeResult.code;
         
-        // El atún y la mayoría de productos tienen 13 dígitos.
-        // Si detecta menos de 10, es una lectura falsa.
+        // Validación de longitud (mínimo 10 dígitos para evitar errores)
         if (code.length < 10) return;
 
         stopScan();
         const info = await buscarProducto(code);
         
+        // Calculamos fecha de vencimiento (15 días por defecto)
         const fecha = new Date();
-        fecha.setDate(fecha.getDate() + 15); // Simulamos 15 días de vida
+        fecha.setDate(fecha.getDate() + 15);
         
         productos.unshift({
             nombre: info.nombre,
             marca: info.marca,
             vence: fecha.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-            color: "#10b981"
+            color: "#10b981" // Color verde por defecto
         });
         
-        document.getElementById('msg').innerText = "¡Producto detectado!";
+        document.getElementById('msg').innerText = "¡Producto agregado con éxito!";
         render();
     });
 
+    // Carga inicial (Vacía)
     render();
 </script>
 </body>
