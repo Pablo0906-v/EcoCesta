@@ -3,52 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EcoCesta | Smart Pantry</title>
+    <title>EcoCesta Pro | Gestión Inteligente</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
     <style>
-        :root { --primary: #10b981; --bg: #0b0f1a; --card: #161d2f; }
+        :root { --primary: #10b981; --bg: #0b0f1a; --card: #161d2f; --danger: #ef4444; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh; }
         .app-container { width: 100%; max-width: 450px; padding-bottom: 120px; }
-        header { text-align: center; margin-bottom: 25px; padding-top: 20px; }
-        h1 { color: var(--primary); margin: 0; font-size: 2.5rem; letter-spacing: -1px; font-weight: 700; }
+        header { text-align: center; margin-bottom: 25px; }
+        h1 { color: var(--primary); margin: 0; font-size: 2.5rem; letter-spacing: -1px; }
         #msg { color: #94a3b8; font-size: 0.9rem; margin-top: 8px; min-height: 1.5em; }
 
-        /* Contenedor de Cámara */
         #interactive.viewport {
             width: 100%; height: 260px; border-radius: 24px; overflow: hidden;
             background: #000; margin-bottom: 25px; border: 2px solid var(--primary);
-            display: none; position: relative; box-shadow: 0 0 30px rgba(16, 185, 129, 0.2);
+            display: none; position: relative;
         }
         #interactive.viewport video { width: 100%; height: 100%; object-fit: cover; }
         .laser { position: absolute; top: 50%; left: 0; width: 100%; height: 2px; background: #ef4444; box-shadow: 0 0 12px #ef4444; z-index: 10; }
 
-        /* Lista de Productos */
         .product-list { display: flex; flex-direction: column; gap: 12px; }
         .card { 
-            background: var(--card); padding: 20px; border-radius: 20px; 
+            background: var(--card); padding: 18px; border-radius: 20px; 
             display: flex; justify-content: space-between; align-items: center; 
-            border: 1px solid rgba(255,255,255,0.05); animation: slideIn 0.4s ease-out;
+            border: 1px solid rgba(255,255,255,0.05); animation: fadeIn 0.3s ease;
         }
         .info h3 { margin: 0; font-size: 1.1rem; color: #fff; text-transform: capitalize; }
-        .info p { margin: 5px 0 0; font-size: 0.85rem; color: #94a3b8; }
-        .status-dot { width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 0 10px currentColor; }
-
-        /* Estado Vacío */
+        .info p { margin: 4px 0 0; font-size: 0.85rem; color: #94a3b8; }
+        
         .empty-state { text-align: center; margin-top: 60px; color: #4b5563; }
-        .empty-state span { font-size: 3rem; display: block; margin-bottom: 15px; }
+        .empty-state span { font-size: 3rem; display: block; margin-bottom: 10px; }
 
-        /* Botón de Escaneo */
         .btn-scan {
             position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%);
             background: #fff; color: #000; padding: 18px 45px; border-radius: 50px;
-            font-weight: 800; border: none; cursor: pointer; display: flex; align-items: center; gap: 12px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.6); font-size: 1rem; z-index: 1000;
-            transition: all 0.2s ease;
+            font-weight: 800; border: none; cursor: pointer; display: flex; align-items: center; gap: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 1000;
         }
-        .btn-scan:active { transform: translateX(-50%) scale(0.95); }
+        
+        .btn-delete { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 1.2rem; padding: 10px; }
 
-        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -56,7 +51,7 @@
 <div class="app-container">
     <header>
         <h1>EcoCesta</h1>
-        <p id="msg">Gestiona tus alimentos con IA</p>
+        <p id="msg">Escáner inteligente activado</p>
     </header>
 
     <div id="interactive" class="viewport"><div class="laser"></div></div>
@@ -68,115 +63,96 @@
 </button>
 
 <script>
-    // LISTA INICIAL VACÍA
-    let productos = [];
+    // Cargar datos guardados o iniciar vacío
+    let productos = JSON.parse(localStorage.getItem('ecocesta_data')) || [];
 
     function render() {
         const list = document.getElementById('main-list');
+        localStorage.setItem('ecocesta_data', JSON.stringify(productos));
         
         if (productos.length === 0) {
-            list.innerHTML = `
-                <div class="empty-state">
-                    <span>🧺</span>
-                    <p>Tu EcoCesta está vacía.</p>
-                    <p style="font-size: 0.8rem;">Escanea un código para registrarlo.</p>
-                </div>`;
+            list.innerHTML = `<div class="empty-state"><span>🧺</span><p>Tu EcoCesta está vacía.</p></div>`;
             return;
         }
 
         list.innerHTML = '';
-        productos.forEach(p => {
+        productos.forEach((p, index) => {
             list.innerHTML += `
                 <div class="card">
                     <div class="info">
                         <h3>${p.nombre}</h3>
                         <p>${p.marca} • Exp. ${p.vence}</p>
                     </div>
-                    <div class="status-dot" style="color: ${p.color}; background: currentColor;"></div>
+                    <button class="btn-delete" onclick="eliminar(${index})">✕</button>
                 </div>`;
         });
     }
 
-    let isScanning = false;
-
-    async function buscarProducto(codigo) {
-        document.getElementById('msg').innerText = "Consultando base de datos mundial...";
-        try {
-            const res = await fetch(`https://world.openfoodfacts.org/api/v0/product/${codigo}.json`);
-            const data = await res.json();
-            
-            if (data.status === 1 && data.product.product_name) {
-                return {
-                    nombre: data.product.product_name,
-                    marca: data.product.brands || "Marca Genérica"
-                };
-            }
-        } catch (e) { console.error("Error API:", e); }
-        // Si no está en la base de datos mundial
-        return { nombre: "Producto " + codigo.slice(-4), marca: "Código: " + codigo };
+    function eliminar(index) {
+        productos.splice(index, 1);
+        render();
     }
 
+    async function buscarProducto(codigo) {
+        document.getElementById('msg').innerText = "Buscando en servidor 1...";
+        try {
+            // Intento 1: Open Food Facts
+            const res1 = await fetch(`https://world.openfoodfacts.org/api/v0/product/${codigo}.json`);
+            const data1 = await res1.json();
+            if (data1.status === 1) return { nombre: data1.product.product_name, marca: data1.product.brands || "Marca Genérica" };
+
+            // Intento 2: Servidor Secundario (UPC Item DB)
+            document.getElementById('msg').innerText = "Buscando en servidor 2...";
+            const res2 = await fetch(`https://api.upcitemdb.com/prod/trial/lookup?upc=${codigo}`);
+            const data2 = await res2.json();
+            if (data2.items && data2.items.length > 0) return { nombre: data2.items[0].title, marca: data2.items[0].brand || "Importado" };
+        } catch (e) { console.log("Error de red"); }
+
+        // Fallback: Registro Manual
+        const manual = prompt("No lo encontramos en la nube. ¿Qué producto es?", "Atún / Leche / Galletas");
+        return { nombre: manual || "Producto Nuevo", marca: "Registro Manual" };
+    }
+
+    let isScanning = false;
     function toggleScanner() {
         const view = document.getElementById('interactive');
-        const btnText = document.getElementById('btnText');
-        
         if (!isScanning) {
             view.style.display = 'block';
-            btnText.innerText = "DETENER CÁMARA";
-            document.getElementById('msg').innerText = "Enfoca el código de barras";
+            document.getElementById('btnText').innerText = "CANCELAR";
             isScanning = true;
-            
             Quagga.init({
-                inputStream: { 
-                    name: "Live", 
-                    type: "LiveStream", 
-                    target: view, 
-                    constraints: { facingMode: "environment", focusMode: "continuous" } 
-                },
-                decoder: { readers: ["ean_reader"] },
-                locate: true
-            }, (err) => {
-                if (err) { alert("Error al iniciar cámara. Usa Live Server."); return; }
-                Quagga.start();
-            });
-        } else {
-            stopScan();
-        }
+                inputStream: { name: "Live", type: "LiveStream", target: view, constraints: { facingMode: "environment" } },
+                decoder: { readers: ["ean_reader"] }
+            }, (err) => { if (!err) Quagga.start(); });
+        } else { stopScan(); }
     }
 
     function stopScan() {
         Quagga.stop();
         document.getElementById('interactive').style.display = 'none';
         document.getElementById('btnText').innerText = "ESCANEAR PRODUCTO";
-        document.getElementById('msg').innerText = "Listo para gestionar";
         isScanning = false;
     }
 
     Quagga.onDetected(async (data) => {
         const code = data.codeResult.code;
-        
-        // Validación de longitud (mínimo 10 dígitos para evitar errores)
         if (code.length < 10) return;
-
         stopScan();
-        const info = await buscarProducto(code);
         
-        // Calculamos fecha de vencimiento (15 días por defecto)
+        const info = await buscarProducto(code);
         const fecha = new Date();
         fecha.setDate(fecha.getDate() + 15);
         
         productos.unshift({
             nombre: info.nombre,
             marca: info.marca,
-            vence: fecha.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-            color: "#10b981" // Color verde por defecto
+            vence: fecha.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' })
         });
         
-        document.getElementById('msg').innerText = "¡Producto agregado con éxito!";
         render();
+        document.getElementById('msg').innerText = "¡Agregado!";
     });
 
-    // Carga inicial (Vacía)
     render();
 </script>
 </body>
