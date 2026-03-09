@@ -1,0 +1,100 @@
+{
+  "productos_referencia": [
+    {
+      "nombre_clave": "LECHE",
+      "categoria": "lácteos",
+      "dias_de_vida": 7,
+      "sugerencia": "Mantener en la puerta del refrigerador despues de abrir."
+    },
+    {
+      "nombre_clave": "PECHUGA POLLO",
+      "categoria": "Carnes",
+      "dias_de_vida": "3",
+      "sugerencia": "Congelar si no se va a consumir en  las proximas 48 horas."
+    },
+    {
+      "nombre_clave": "HUEVOS",
+      "categoria": "lácteos",
+      "dias_de_vida": 21,
+      "sugerencia": "no los guardes en la puerta; la temperatura varía mucho ahí"
+    },
+    {
+      "nombre_clave": "yogurt",
+      "categoria": "lácteos",
+      "dias_de_vida": "14",
+      "sugerencia": "Mantener siempre sellado. Si ves líquido arriba, solo mézclalo."
+    },
+    {
+      "nombre_clave": "QUESO FRESCO",
+      "categoria": "Lácteos",
+      "dias_de_vida": 5,
+      "sugerencia": "Guárdalo en un recipiente hermético con una servilleta de papel debajo."
+    },
+    {
+      "nombre_clave": "CARNE DE RES",
+      "categoria": "Carnes",
+      "dias_de_vida": 4,
+      "sugerencia": "Si no la vas a cocinar mañana, mejor congélala hoy mismo."
+    },
+    {
+      "nombre_clave": "PESCADO",
+      "categoria": "Carnes",
+      "dias_de_vida": 2,
+      "sugerencia": "Es muy sensible. Consumir máximo 48 horas tras la compra."
+    },
+    {
+      "nombre_clave": "TOMATE",
+      "categoria": "Frutas y Verduras",
+      "dias_de_vida": 7,
+      "sugerencia": "No los metas al refri si aún están verdes; pierden su sabor."
+    },
+    {
+      "nombre_clave": "LECHUGA",
+      "categoria": "Frutas y Verduras",
+      "dias_de_vida": 5,
+      "sugerencia": "Lávala, sécala muy bien y guárdala en una bolsa con aire."
+    },
+    {
+      "nombre_clave": "AGUACATE",
+      "categoria": "Frutas y Verduras",
+      "dias_de_vida": 4,
+      "sugerencia": "Si ya está maduro, mételo al refri para frenar la maduración."
+    },
+    {
+      "nombre_clave": "MANZANA",
+      "categoria": "Frutas y Verduras",
+      "dias_de_vida": 20,
+      "sugerencia": "Duran mucho más si están en el cajón de las verduras del refri."
+    },
+    {
+      "nombre_clave": "PLATANO",
+      "categoria": "Frutas y Verduras",
+      "dias_de_vida": 5,
+      "sugerencia": "Mantener fuera del refri. Separa los dedos del racimo para que duren más."
+    },
+    {
+      "nombre_clave": "PAN DE CAJA",
+      "categoria": "Otros",
+      "dias_de_vida": 10,
+      "sugerencia": "Si el ambiente es muy húmedo, guárdalo en el refrigerador."
+    },
+    {
+      "nombre_clave": "JAMON",
+      "categoria": "Carnes",
+      "dias_de_vida": 5,
+      "sugerencia": "Cámbialo a un recipiente hermético (tupper) al llegar a casa."
+    },
+    {
+      "nombre_clave": "TOFU",
+      "categoria": "Otros",
+      "dias_de_vida": 7,
+      "sugerencia": "Guárdalo sumergido en agua limpia y cámbiala cada día."
+    },
+    {
+      "nombre_clave": "ATUN EN LATA",
+      "categoria": "Despensa",
+      "dias_de_vida": 365,
+      "sugerencia": "Una vez abierto, pásalo a un recipiente de vidrio, no lo dejes en la lata."
+    }
+  ]
+}
