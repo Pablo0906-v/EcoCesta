@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EcoCesta | AI Smart Inventory</title>
+    <title>EcoCesta | Login & Inventory</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
     <style>
@@ -17,75 +17,104 @@
             --text-sec: #94a3b8; --btn-bg: #ffffff; --btn-text: #000000; 
             --shadow: rgba(0,0,0,0.3);
         }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-main); margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh; transition: 0.5s; }
-        .app-container { width: 100%; max-width: 450px; padding-bottom: 140px; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-main); margin: 0; padding: 0; transition: 0.5s; overflow-x: hidden; }
+        
+        /* PANTALLA DE LOGIN */
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 5000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+        .login-box { background: var(--card); padding: 40px 30px; border-radius: 30px; box-shadow: 0 10px 30px var(--shadow); width: 100%; max-width: 380px; text-align: center; }
+        .login-box h2 { margin-bottom: 25px; font-weight: 800; color: var(--primary); font-size: 2rem; }
+        .login-box input { width: 100%; padding: 15px; margin-bottom: 15px; border: 1px solid rgba(128,128,128,0.2); border-radius: 12px; background: var(--bg); color: var(--text-main); font-size: 1rem; box-sizing: border-box; }
+        
+        /* APP CONTAINER */
+        #app-content { display: none; padding: 20px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+        .app-inner { width: 100%; max-width: 450px; padding-bottom: 140px; }
         header { text-align: center; margin-bottom: 30px; }
-        h1 { color: var(--primary); margin: 0; font-size: 2.2rem; font-weight: 800; letter-spacing: -1px; }
+        h1 { color: var(--primary); margin: 0; font-size: 2.2rem; font-weight: 800; }
         #msg { color: var(--text-sec); font-size: 0.9rem; margin-top: 5px; font-weight: 600; }
         
         #interactive.viewport { width: 100%; height: 250px; border-radius: 24px; overflow: hidden; background: #000; margin-bottom: 25px; border: 4px solid var(--card); box-shadow: 0 10px 25px var(--shadow); display: none; position: relative; }
         .laser { position: absolute; top: 50%; left: 0; width: 100%; height: 2px; background: var(--primary); z-index: 10; }
         
         .product-list { display: flex; flex-direction: column; gap: 12px; }
-        .card { background: var(--card); padding: 18px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px var(--shadow); border: 1px solid rgba(128,128,128,0.1); animation: fadeIn 0.4s ease-out; position: relative; cursor: pointer; transition: transform 0.2s; }
-        .card:active { transform: scale(0.98); }
+        .card { background: var(--card); padding: 18px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px var(--shadow); border: 1px solid rgba(128,128,128,0.1); animation: fadeIn 0.4s ease-out; position: relative; cursor: pointer; }
         
         .info h3 { margin: 0; font-size: 1.1rem; font-weight: 700; text-transform: capitalize; padding-right: 25px; color: var(--text-main); }
         .info p { margin: 2px 0; font-size: 0.85rem; color: var(--text-sec); }
-        .vence-text { font-weight: 700; font-size: 0.85rem; margin-top: 8px; display: block; }
+        .vence-text { font-weight: 700; font-size: 0.88rem; margin-top: 8px; display: block; }
         
-        .days-tag { font-weight: 800; font-size: 0.65rem; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; margin-top: 5px; display: inline-block; background: rgba(16, 185, 129, 0.1); }
-
-        /* MODAL IA */
-        #modal-ia { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
-        .modal-content { background: var(--card); width: 85%; max-width: 350px; padding: 25px; border-radius: 28px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
-        .modal-content h2 { margin-top: 0; color: var(--primary); font-size: 1.2rem; }
-        .modal-content p { font-size: 0.95rem; line-height: 1.5; color: var(--text-sec); }
-        .btn-close { background: var(--btn-bg); color: var(--btn-text); border: none; padding: 12px 25px; border-radius: 15px; font-weight: 700; margin-top: 15px; cursor: pointer; width: 100%; }
+        /* MODAL CONSEJO AMIGO */
+        #modal-ia { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .modal-content { background: var(--card); width: 85%; max-width: 350px; padding: 30px; border-radius: 28px; text-align: center; }
+        .modal-content h2 { margin-top: 0; color: var(--text-main); font-size: 1.3rem; font-weight: 700; }
+        .modal-content p { font-size: 1rem; line-height: 1.5; color: var(--text-sec); font-style: italic; }
+        .btn-close { background: var(--primary); color: white; border: none; padding: 14px 25px; border-radius: 15px; font-weight: 700; margin-top: 20px; cursor: pointer; width: 100%; }
 
         .status-dot { width: 12px; height: 12px; border-radius: 50%; margin-right: 14px; flex-shrink: 0; }
         .nav-actions { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; gap: 12px; width: 90%; max-width: 400px; z-index: 1000; }
-        .btn { flex: 1; padding: 18px; border-radius: 20px; font-weight: 700; border: none; cursor: pointer; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-main { background: var(--btn-bg); color: var(--btn-text); box-shadow: 0 10px 20px var(--shadow); }
+        .btn { flex: 1; padding: 18px; border-radius: 20px; font-weight: 700; border: none; cursor: pointer; }
+        .btn-main { background: var(--btn-bg); color: var(--btn-text); }
         .btn-sec { background: var(--card); color: var(--text-main); border: 1px solid rgba(128,128,128,0.2); }
-        .btn-delete { position: absolute; top: 18px; right: 18px; background: rgba(128,128,128,0.1); border: none; color: var(--text-sec); cursor: pointer; border-radius: 50%; width: 28px; height: 28px; font-size: 0.7rem; z-index: 10; }
+        .btn-delete { position: absolute; top: 18px; right: 18px; background: rgba(128,128,128,0.1); border: none; color: var(--text-sec); cursor: pointer; border-radius: 50%; width: 28px; height: 28px; z-index: 10; }
         
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body id="body-tag">
 
-<div id="modal-ia" onclick="cerrarIA()">
-    <div class="modal-content" onclick="event.stopPropagation()">
-        <span style="font-size: 2.5rem;">🤖</span>
-        <h2 id="ia-titulo">Consejo Pro</h2>
-        <p id="ia-consejo">Cargando...</p>
-        <button class="btn-close" onclick="cerrarIA()">Entendido</button>
+<div id="login-screen">
+    <div class="login-box">
+        <h2>EcoCesta</h2>
+        <input type="text" id="user" placeholder="Usuario">
+        <input type="password" id="pass" placeholder="Contraseña">
+        <button class="btn btn-main" style="width: 100%;" onclick="login()">Entrar</button>
     </div>
 </div>
 
-<div class="app-container">
-    <header><h1>EcoCesta</h1><p id="msg">Analizando frescura...</p></header>
-    <div id="interactive" class="viewport"><div class="laser"></div></div>
-    <div class="product-list" id="main-list"></div>
+<div id="modal-ia" onclick="cerrarIA()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <h2 id="ia-titulo">Consejo de amigo</h2>
+        <p id="ia-consejo">Cargando...</p>
+        <button class="btn-close" onclick="cerrarIA()">Gracias!</button>
+    </div>
 </div>
 
-<div class="nav-actions">
-    <button class="btn btn-sec" onclick="agregarManual()">✍️ Manual</button>
-    <button class="btn btn-main" onclick="toggleScanner()" id="scanBtn">📸 Escanear</button>
+<div id="app-content">
+    <div class="app-inner">
+        <header><h1>EcoCesta</h1><p id="msg">Analizando frescura...</p></header>
+        <div id="interactive" class="viewport"><div class="laser"></div></div>
+        <div class="product-list" id="main-list"></div>
+    </div>
+    <div class="nav-actions">
+        <button class="btn btn-sec" onclick="agregarManual()">✍️ Manual</button>
+        <button class="btn btn-main" onclick="toggleScanner()" id="scanBtn">📸 Escanear</button>
+    </div>
 </div>
 
 <script>
     let productos = JSON.parse(localStorage.getItem('ecocesta_data')) || [];
 
+    // LÓGICA DE LOGIN SENCILLO
+    function login() {
+        const u = document.getElementById('user').value;
+        const p = document.getElementById('pass').value;
+        if(u !== "" && p !== "") {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('app-content').style.display = 'flex';
+            aplicarTema();
+            render();
+        } else {
+            alert("Por favor llena los campos");
+        }
+    }
+
     const CATEGORIAS = {
-        lacteos: { dias: 15, msg: "Lácteo", color: "#f59e0b", care: "Mantener en la parte media del refri. No dejes el envase abierto mucho tiempo." },
-        carnes: { dias: 4, msg: "Proteína", color: "#ef4444", care: "Consumir pronto o congelar para evitar bacterias." },
-        granos: { dias: 180, msg: "Abarrote", color: "#10b981", care: "Lugar fresco y seco. Cierra bien el empaque tras usarlo." },
-        especias: { dias: 365, msg: "Condimento", color: "#10b981", care: "Lejos del vapor de la estufa para que no se humedezcan." },
-        cafe: { dias: 120, msg: "Café / Polvos", color: "#10b981", care: "Recipiente hermético y oscuro para conservar el aroma." },
-        snacks: { dias: 60, msg: "Snack", color: "#10b981", care: "Sellar con pinza para mantener lo crujiente." },
-        desconocido: { dias: 21, msg: "Varios", color: "#64748b", care: "Revisar aspecto antes de consumir." }
+        lacteos: { dias: 15, msg: "Lácteo", color: "#f59e0b", care: "Oye, como es un lácteo, trata de no dejarlo en la puerta del refri, ahí cambia mucho la temperatura. Mejor ponlo al fondo." },
+        carnes: { dias: 4, msg: "Proteína", color: "#ef4444", care: "Brother, esto se echa a perder rápido. Si no lo vas a cocinar mañana, mejor mételo al congelador de una vez." },
+        granos: { dias: 180, msg: "Abarrote", color: "#10b981", care: "Mantén esto en un lugar seco. Si ves que hay humedad, mejor cámbialo a un frasco de vidrio." },
+        especias: { dias: 365, msg: "Condimento", color: "#10b981", care: "No lo dejes cerca de la estufa mientras cocinas, el vapor hace que se peguen y pierdan el sabor." },
+        cafe: { dias: 120, msg: "Café", color: "#10b981", care: "Para que te siga sabiendo rico, guárdalo en un bote que no le pase la luz. El café odia el sol." },
+        snacks: { dias: 60, msg: "Snack", color: "#10b981", care: "Dóblale bien la bolsa o ponle una pinza, ya ves que luego se ponen aguadas las papas." },
+        desconocido: { dias: 21, msg: "Varios", color: "#64748b", care: "Échale un ojo antes de usarlo, si huele raro o se ve diferente, mejor no te arriesgues." }
     };
 
     function aplicarTema() {
@@ -107,7 +136,6 @@
     }
 
     function abrirIA(nombre, care) {
-        document.getElementById('ia-titulo').innerText = nombre;
         document.getElementById('ia-consejo').innerText = care;
         document.getElementById('modal-ia').style.display = 'flex';
     }
@@ -118,7 +146,7 @@
         const list = document.getElementById('main-list');
         localStorage.setItem('ecocesta_data', JSON.stringify(productos));
         if (productos.length === 0) {
-            list.innerHTML = `<div style="text-align:center; padding-top:60px;"><p style="color:var(--text-sec);">Tu cesta está vacía</p></div>`;
+            list.innerHTML = `<div style="text-align:center; padding-top:60px;"><p style="color:var(--text-sec);">No hay productos registrados</p></div>`;
             return;
         }
         list.innerHTML = '';
@@ -131,10 +159,8 @@
                             <h3>${p.nombre}</h3>
                             <p>${p.marca} • Ingreso: ${p.fechaIngreso}</p>
                             <span class="vence-text" style="color:${p.color};">
-                                Fecha de vencimiento: //// ${p.venceFinal}
+                                Fecha vencimiento: ${p.venceFinal}
                             </span>
-                            <br>
-                            <span class="days-tag" style="color:${p.color}; background:${p.color}22;">${p.catMsg}</span>
                         </div>
                     </div>
                     <button class="btn-delete" onclick="event.stopPropagation(); eliminar(${i});">✕</button>
@@ -148,7 +174,6 @@
         const cat = obtenerCategoria(nombre);
         const hoy = new Date();
         const fechaIngresoStr = hoy.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' });
-        
         const fechaFinal = new Date();
         fechaFinal.setDate(hoy.getDate() + cat.dias);
         const venceFinalStr = fechaFinal.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -157,7 +182,6 @@
             nombre, marca, 
             fechaIngreso: fechaIngresoStr,
             venceFinal: venceFinalStr,
-            catMsg: cat.msg,
             color: cat.color,
             care: cat.care
         });
@@ -204,7 +228,6 @@
         procesarProducto(info.nombre, info.marca);
     });
 
-    aplicarTema(); render();
 </script>
 </body>
 </html>
