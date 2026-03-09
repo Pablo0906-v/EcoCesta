@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EcoCesta Pro | Smart Scanner</title>
+    <title>EcoCesta | Pro Scanner</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
     <style>
-        :root { --primary: #10b981; --bg: #0b0f1a; --card: #161d2f; --danger: #ef4444; }
+        :root { --primary: #10b981; --bg: #0b0f1a; --card: #161d2f; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; margin: 0; padding: 20px; display: flex; justify-content: center; }
         .app-container { width: 100%; max-width: 450px; padding-bottom: 100px; }
         header { text-align: center; margin-bottom: 20px; }
-        h1 { color: var(--primary); margin: 0; font-size: 2rem; }
-        #msg { color: #94a3b8; font-size: 0.9rem; margin-top: 5px; height: 20px; }
+        h1 { color: var(--primary); margin: 0; font-size: 2.2rem; letter-spacing: -1px; }
+        #msg { color: #94a3b8; font-size: 0.9rem; margin-top: 5px; min-height: 1.2em; }
 
         #interactive.viewport {
             width: 100%; height: 250px; border-radius: 20px; overflow: hidden;
@@ -20,14 +20,13 @@
             display: none; position: relative;
         }
         #interactive.viewport video { width: 100%; height: 100%; object-fit: cover; }
-        .laser { position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--primary); box-shadow: 0 0 15px var(--primary); animation: scan 2s infinite linear; z-index: 10; }
-        @keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
+        .laser { position: absolute; top: 50%; left: 0; width: 100%; height: 2px; background: rgba(255,0,0,0.7); box-shadow: 0 0 10px red; z-index: 10; }
 
         .product-list { display: flex; flex-direction: column; gap: 12px; }
-        .card { background: var(--card); padding: 18px; border-radius: 18px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.05); }
-        .info h3 { margin: 0; font-size: 1rem; color: #fff; }
+        .card { background: var(--card); padding: 18px; border-radius: 18px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.05); animation: fadeIn 0.3s ease; }
+        .info h3 { margin: 0; font-size: 1rem; color: #fff; text-transform: capitalize; }
         .info p { margin: 4px 0 0; font-size: 0.8rem; color: #94a3b8; }
-        .status-dot { width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 0 10px currentColor; }
+        .status-dot { width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 0 8px currentColor; }
 
         .btn-scan {
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
@@ -35,6 +34,8 @@
             font-weight: bold; border: none; cursor: pointer; display: flex; align-items: center; gap: 10px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.5); font-size: 1rem; z-index: 1000;
         }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -42,7 +43,7 @@
 <div class="app-container">
     <header>
         <h1>EcoCesta</h1>
-        <p id="msg">Listo para gestionar tu alacena</p>
+        <p id="msg">Enfoca un código de barras real</p>
     </header>
 
     <div id="interactive" class="viewport"><div class="laser"></div></div>
@@ -50,14 +51,12 @@
 </div>
 
 <button class="btn-scan" onclick="toggleScanner()" id="scanBtn">
-    <span id="btnIcon">🔍</span> <span id="btnText">ESCANEAR</span>
+    <span id="btnText">ESCANEAR PRODUCTO</span>
 </button>
 
 <script>
     let productos = [
-        { nombre: "Pechuga de Pollo", marca: "Bachoco", vence: "12/03/2026", color: "#ef4444" },
-        { nombre: "Yogurt Griego", marca: "Fage", vence: "14/03/2026", color: "#f59e0b" },
-        { nombre: "Leche Orgánica", marca: "Lala", vence: "16/03/2026", color: "#10b981" }
+        { nombre: "Leche Orgánica", marca: "Lala", vence: "Mar 16, 2026", color: "#10b981" }
     ];
 
     function render() {
@@ -78,19 +77,20 @@
     let isScanning = false;
 
     async function buscarProducto(codigo) {
-        document.getElementById('msg').innerText = "Buscando en la base de datos...";
+        document.getElementById('msg').innerText = "Buscando: " + codigo;
         try {
             const res = await fetch(`https://world.openfoodfacts.org/api/v0/product/${codigo}.json`);
             const data = await res.json();
             
-            if (data.status === 1) {
+            if (data.status === 1 && data.product.product_name) {
                 return {
-                    nombre: data.product.product_name || "Producto sin nombre",
-                    marca: data.product.brands || "Genérico"
+                    nombre: data.product.product_name,
+                    marca: data.product.brands || "Marca genérica"
                 };
             }
         } catch (e) { console.error("Error API:", e); }
-        return { nombre: "Producto " + codigo.slice(-4), marca: "Scanner" };
+        // Si no lo encuentra, devolvemos el código para saber qué leyó
+        return { nombre: "Desconocido (" + codigo.slice(-4) + ")", marca: "Código: " + codigo };
     }
 
     function toggleScanner() {
@@ -99,11 +99,18 @@
         
         if (!isScanning) {
             view.style.display = 'block';
-            btnText.innerText = "DETENER";
+            btnText.innerText = "CANCELAR";
             isScanning = true;
+            
             Quagga.init({
-                inputStream: { name: "Live", type: "LiveStream", target: view, constraints: { facingMode: "environment" } },
-                decoder: { readers: ["ean_reader", "ean_8_reader", "code_128_reader"] }
+                inputStream: { 
+                    name: "Live", 
+                    type: "LiveStream", 
+                    target: view, 
+                    constraints: { facingMode: "environment", focusMode: "continuous" } 
+                },
+                decoder: { readers: ["ean_reader"] }, // Forzamos EAN para evitar lecturas parciales
+                locate: true
             }, (err) => {
                 if (err) return;
                 Quagga.start();
@@ -116,19 +123,23 @@
     function stopScan() {
         Quagga.stop();
         document.getElementById('interactive').style.display = 'none';
-        document.getElementById('btnText').innerText = "ESCANEAR";
+        document.getElementById('btnText').innerText = "ESCANEAR PRODUCTO";
         isScanning = false;
     }
 
+    // Validación para evitar números incompletos
     Quagga.onDetected(async (data) => {
         const code = data.codeResult.code;
-        stopScan();
         
+        // El atún y la mayoría de productos tienen 13 dígitos.
+        // Si detecta menos de 10, es una lectura falsa.
+        if (code.length < 10) return;
+
+        stopScan();
         const info = await buscarProducto(code);
         
-        // Fecha de vencimiento simulada (10 días después de hoy)
         const fecha = new Date();
-        fecha.setDate(fecha.getDate() + 10);
+        fecha.setDate(fecha.getDate() + 15); // Simulamos 15 días de vida
         
         productos.unshift({
             nombre: info.nombre,
@@ -137,7 +148,7 @@
             color: "#10b981"
         });
         
-        document.getElementById('msg').innerText = "¡Agregado con éxito!";
+        document.getElementById('msg').innerText = "¡Producto detectado!";
         render();
     });
 
