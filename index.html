@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EcoCesta Pro</title>
+    <title>EcoCesta Pro | Auto-Detect</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
     <style>
@@ -53,7 +53,7 @@
 <div class="app-container">
     <header>
         <h1>EcoCesta</h1>
-        <p id="msg">IA Pantry Manager</p>
+        <p id="msg">Detección automática activada</p>
     </header>
     <div id="interactive" class="viewport"><div class="laser"></div></div>
     <div class="product-list" id="main-list"></div>
@@ -94,22 +94,24 @@
 
     function eliminar(i) { productos.splice(i, 1); render(); }
 
-    // Función de ayuda para obtener fecha según tipo
-    function configurarProducto() {
-        const tipo = prompt("Tipo de producto:\n1. Lácteo (Vence 28 Mar)\n2. Carne (3 días)\n3. Abarrotes (Largo plazo)", "1");
-        
-        let dias = 14;
-        let color = "#10b981"; // Verde
+    // --- CEREBRO DE DETECCIÓN AUTOMÁTICA ---
+    function autoConfigurar(nombre) {
+        const n = nombre.toLowerCase();
+        let dias = 14; 
+        let color = "#10b981"; // Verde (Abarrotes)
 
-        if (tipo === "1") { 
-            dias = 19; // De hoy 9 Mar al 28 Mar
-            color = "#f59e0b"; // Naranja
-        } else if (tipo === "2") {
+        // Si detecta lácteos, fuerza la fecha al 28 de Marzo (19 días desde hoy 9 Mar)
+        if (n.includes("leche") || n.includes("crema") || n.includes("yogurt") || n.includes("queso") || n.includes("arroz")) {
+            dias = 19; 
+            color = "#f59e0b"; // Naranja (Lácteos/Perecederos medios)
+        } 
+        else if (n.includes("pollo") || n.includes("carne") || n.includes("pescado")) {
             dias = 3;
-            color = "#ef4444"; // Rojo
-        } else if (tipo === "3") {
+            color = "#ef4444"; // Rojo (Urgente)
+        }
+        else if (n.includes("aceite") || n.includes("latas") || n.includes("frijol") || n.includes("pimienta")) {
             dias = 180;
-            color = "#10b981"; // Verde
+            color = "#10b981"; // Verde (Larga vida)
         }
 
         const f = new Date();
@@ -120,23 +122,23 @@
         };
     }
 
-    function agregarManual() {
-        const nombre = prompt("Nombre del producto:");
-        if (!nombre) return;
-        const marca = prompt("Marca:", "Genérico");
-        const conf = configurarProducto();
-        productos.unshift({ nombre, marca, vence: conf.vence, color: conf.color });
-        render();
-    }
-
     async function buscarProducto(codigo) {
         document.getElementById('msg').innerText = "Identificando...";
         try {
             const res = await fetch(`https://world.openfoodfacts.org/api/v0/product/${codigo}.json`);
             const data = await res.json();
-            if (data.status === 1) return { nombre: data.product.product_name, marca: data.product.brands };
+            if (data.status === 1) return { nombre: data.product.product_name, marca: data.product.brands || "Marca detectada" };
         } catch (e) {}
         return null;
+    }
+
+    function agregarManual() {
+        const nombre = prompt("Nombre del producto:");
+        if (!nombre) return;
+        const marca = prompt("Marca:", "Genérico");
+        const conf = autoConfigurar(nombre);
+        productos.unshift({ nombre, marca, vence: conf.vence, color: conf.color });
+        render();
     }
 
     let isScanning = false;
@@ -156,26 +158,35 @@
         Quagga.stop();
         document.getElementById('interactive').style.display = 'none';
         isScanning = false;
-        document.getElementById('msg').innerText = "IA Pantry Manager";
+        document.getElementById('msg').innerText = "Listo";
     }
 
     Quagga.onDetected(async (data) => {
         const code = data.codeResult.code;
-        // FILTRO: Solo procede si el código es largo (EAN-13 o similar)
         if (code.length < 12) return; 
 
         stopScan();
         let info = await buscarProducto(code);
         
+        // Si no está en la nube, pedimos el nombre UNA sola vez
         if (!info) {
-            const nom = prompt("Código detectado pero no está en la base de datos. ¿Qué es?");
+            const nom = prompt("No reconocido. ¿Qué producto es?");
             if(!nom) return;
             info = { nombre: nom, marca: "Scanner" };
         }
         
-        const conf = configurarProducto();
-        productos.unshift({ nombre: info.nombre, marca: info.marca, vence: conf.vence, color: conf.color });
+        // Detecta automáticamente la fecha basándose en el nombre
+        const conf = autoConfigurar(info.nombre);
+        
+        productos.unshift({ 
+            nombre: info.nombre, 
+            marca: info.marca, 
+            vence: conf.vence, 
+            color: conf.color 
+        });
+        
         render();
+        document.getElementById('msg').innerText = "¡Agregado automáticamente!";
     });
 
     render();
