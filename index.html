@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EcoCesta | Smart Inventory</title>
+    <title>EcoCesta | AI Smart Inventory</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
     <style>
@@ -20,41 +20,56 @@
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-main); margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh; transition: 0.5s; }
         .app-container { width: 100%; max-width: 450px; padding-bottom: 140px; }
         header { text-align: center; margin-bottom: 30px; }
-        h1 { color: var(--primary); margin: 0; font-size: 2.2rem; font-weight: 800; }
+        h1 { color: var(--primary); margin: 0; font-size: 2.2rem; font-weight: 800; letter-spacing: -1px; }
         #msg { color: var(--text-sec); font-size: 0.9rem; margin-top: 5px; font-weight: 600; }
         
         #interactive.viewport { width: 100%; height: 250px; border-radius: 24px; overflow: hidden; background: #000; margin-bottom: 25px; border: 4px solid var(--card); box-shadow: 0 10px 25px var(--shadow); display: none; position: relative; }
         .laser { position: absolute; top: 50%; left: 0; width: 100%; height: 2px; background: var(--primary); z-index: 10; }
         
         .product-list { display: flex; flex-direction: column; gap: 12px; }
-        .card { background: var(--card); padding: 18px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px var(--shadow); border: 1px solid rgba(128,128,128,0.1); animation: fadeIn 0.4s ease-out; position: relative; }
+        .card { background: var(--card); padding: 18px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px var(--shadow); border: 1px solid rgba(128,128,128,0.1); animation: fadeIn 0.4s ease-out; position: relative; cursor: pointer; transition: transform 0.2s; }
+        .card:active { transform: scale(0.98); }
         
-        .info h3 { margin: 0; font-size: 1.05rem; font-weight: 700; text-transform: capitalize; padding-right: 25px; }
-        .info p { margin: 2px 0; font-size: 0.82rem; color: var(--text-sec); }
-        .days-tag { font-weight: 800; font-size: 0.7rem; text-transform: uppercase; padding: 2px 8px; border-radius: 6px; margin-top: 4px; display: inline-block; }
+        .info h3 { margin: 0; font-size: 1.1rem; font-weight: 700; text-transform: capitalize; padding-right: 25px; color: var(--text-main); }
+        .info p { margin: 2px 0; font-size: 0.85rem; color: var(--text-sec); }
+        .vence-text { font-weight: 700; font-size: 0.85rem; margin-top: 8px; display: block; }
         
-        .calc-box { 
-            font-family: 'Courier New', monospace; font-size: 0.7rem; 
-            background: rgba(128,128,128,0.08); padding: 6px 10px; border-radius: 8px; 
-            margin-top: 8px; display: block; color: var(--text-main); border-left: 3px solid var(--primary);
-        }
+        .days-tag { font-weight: 800; font-size: 0.65rem; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; margin-top: 5px; display: inline-block; background: rgba(16, 185, 129, 0.1); }
 
-        .status-dot { width: 12px; height: 12px; border-radius: 50%; margin-right: 12px; flex-shrink: 0; }
+        /* MODAL IA */
+        #modal-ia { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+        .modal-content { background: var(--card); width: 85%; max-width: 350px; padding: 25px; border-radius: 28px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+        .modal-content h2 { margin-top: 0; color: var(--primary); font-size: 1.2rem; }
+        .modal-content p { font-size: 0.95rem; line-height: 1.5; color: var(--text-sec); }
+        .btn-close { background: var(--btn-bg); color: var(--btn-text); border: none; padding: 12px 25px; border-radius: 15px; font-weight: 700; margin-top: 15px; cursor: pointer; width: 100%; }
+
+        .status-dot { width: 12px; height: 12px; border-radius: 50%; margin-right: 14px; flex-shrink: 0; }
         .nav-actions { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; gap: 12px; width: 90%; max-width: 400px; z-index: 1000; }
         .btn { flex: 1; padding: 18px; border-radius: 20px; font-weight: 700; border: none; cursor: pointer; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-main { background: var(--btn-bg); color: var(--btn-text); }
+        .btn-main { background: var(--btn-bg); color: var(--btn-text); box-shadow: 0 10px 20px var(--shadow); }
         .btn-sec { background: var(--card); color: var(--text-main); border: 1px solid rgba(128,128,128,0.2); }
-        .btn-delete { position: absolute; top: 18px; right: 18px; background: rgba(128,128,128,0.1); border: none; color: var(--text-sec); cursor: pointer; border-radius: 50%; width: 28px; height: 28px; font-size: 0.7rem; }
+        .btn-delete { position: absolute; top: 18px; right: 18px; background: rgba(128,128,128,0.1); border: none; color: var(--text-sec); cursor: pointer; border-radius: 50%; width: 28px; height: 28px; font-size: 0.7rem; z-index: 10; }
         
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body id="body-tag">
+
+<div id="modal-ia" onclick="cerrarIA()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <span style="font-size: 2.5rem;">🤖</span>
+        <h2 id="ia-titulo">Consejo Pro</h2>
+        <p id="ia-consejo">Cargando...</p>
+        <button class="btn-close" onclick="cerrarIA()">Entendido</button>
+    </div>
+</div>
+
 <div class="app-container">
-    <header><h1>EcoCesta</h1><p id="msg">Sincronizando...</p></header>
+    <header><h1>EcoCesta</h1><p id="msg">Analizando frescura...</p></header>
     <div id="interactive" class="viewport"><div class="laser"></div></div>
     <div class="product-list" id="main-list"></div>
 </div>
+
 <div class="nav-actions">
     <button class="btn btn-sec" onclick="agregarManual()">✍️ Manual</button>
     <button class="btn btn-main" onclick="toggleScanner()" id="scanBtn">📸 Escanear</button>
@@ -63,15 +78,14 @@
 <script>
     let productos = JSON.parse(localStorage.getItem('ecocesta_data')) || [];
 
-    // --- CONFIGURACIÓN DE VIDA ÚTIL ---
     const CATEGORIAS = {
-        lacteos: { dias: 15, msg: "Lácteo / Perecedero", color: "#f59e0b" },
-        carnes: { dias: 4, msg: "Proteína Fresca", color: "#ef4444" },
-        granos: { dias: 180, msg: "Abarrote Seco", color: "#10b981" },
-        especias: { dias: 365, msg: "Condimento / Sal", color: "#10b981" },
-        cafe: { dias: 120, msg: "Café / Polvos", color: "#10b981" },
-        snacks: { dias: 60, msg: "Snack / Galleta", color: "#10b981" },
-        desconocido: { dias: 21, msg: "Genérico", color: "#64748b" }
+        lacteos: { dias: 15, msg: "Lácteo", color: "#f59e0b", care: "Mantener en la parte media del refri. No dejes el envase abierto mucho tiempo." },
+        carnes: { dias: 4, msg: "Proteína", color: "#ef4444", care: "Consumir pronto o congelar para evitar bacterias." },
+        granos: { dias: 180, msg: "Abarrote", color: "#10b981", care: "Lugar fresco y seco. Cierra bien el empaque tras usarlo." },
+        especias: { dias: 365, msg: "Condimento", color: "#10b981", care: "Lejos del vapor de la estufa para que no se humedezcan." },
+        cafe: { dias: 120, msg: "Café / Polvos", color: "#10b981", care: "Recipiente hermético y oscuro para conservar el aroma." },
+        snacks: { dias: 60, msg: "Snack", color: "#10b981", care: "Sellar con pinza para mantener lo crujiente." },
+        desconocido: { dias: 21, msg: "Varios", color: "#64748b", care: "Revisar aspecto antes de consumir." }
     };
 
     function aplicarTema() {
@@ -92,29 +106,38 @@
         return CATEGORIAS.desconocido;
     }
 
+    function abrirIA(nombre, care) {
+        document.getElementById('ia-titulo').innerText = nombre;
+        document.getElementById('ia-consejo').innerText = care;
+        document.getElementById('modal-ia').style.display = 'flex';
+    }
+
+    function cerrarIA() { document.getElementById('modal-ia').style.display = 'none'; }
+
     function render() {
         const list = document.getElementById('main-list');
         localStorage.setItem('ecocesta_data', JSON.stringify(productos));
         if (productos.length === 0) {
-            list.innerHTML = `<div style="text-align:center; padding-top:60px;"><p style="color:var(--text-sec);">Inventario vacío</p></div>`;
+            list.innerHTML = `<div style="text-align:center; padding-top:60px;"><p style="color:var(--text-sec);">Tu cesta está vacía</p></div>`;
             return;
         }
         list.innerHTML = '';
         productos.forEach((p, i) => {
             list.innerHTML += `
-                <div class="card">
+                <div class="card" onclick="abrirIA('${p.nombre}', '${p.care}')">
                     <div style="display:flex; align-items:center; width:100%;">
                         <div class="status-dot" style="background-color:${p.color};"></div>
                         <div class="info" style="width:100%;">
                             <h3>${p.nombre}</h3>
-                            <p><strong>${p.marca}</strong></p>
-                            <span class="days-tag" style="background:${p.color}22; color:${p.color};">${p.catMsg}</span>
-                            <div class="calc-box">
-                                📅 ${p.fechaIngreso} + ${p.vidaDias} días = <b>${p.venceFinal}</b>
-                            </div>
+                            <p>${p.marca} • Ingreso: ${p.fechaIngreso}</p>
+                            <span class="vence-text" style="color:${p.color};">
+                                Fecha de vencimiento: //// ${p.venceFinal}
+                            </span>
+                            <br>
+                            <span class="days-tag" style="color:${p.color}; background:${p.color}22;">${p.catMsg}</span>
                         </div>
                     </div>
-                    <button class="btn-delete" onclick="eliminar(${i})">✕</button>
+                    <button class="btn-delete" onclick="event.stopPropagation(); eliminar(${i});">✕</button>
                 </div>`;
         });
     }
@@ -128,15 +151,15 @@
         
         const fechaFinal = new Date();
         fechaFinal.setDate(hoy.getDate() + cat.dias);
-        const venceFinalStr = fechaFinal.toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' });
+        const venceFinalStr = fechaFinal.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
         productos.unshift({ 
             nombre, marca, 
             fechaIngreso: fechaIngresoStr,
-            vidaDias: cat.dias,
             venceFinal: venceFinalStr,
             catMsg: cat.msg,
-            color: cat.color
+            color: cat.color,
+            care: cat.care
         });
         render();
     }
@@ -145,13 +168,13 @@
         try {
             const res = await fetch(`https://world.openfoodfacts.org/api/v0/product/${codigo}.json`);
             const data = await res.json();
-            if (data.status === 1) return { nombre: data.product.product_name, marca: data.product.brands || "Marca detectada" };
+            if (data.status === 1) return { nombre: data.product.product_name, marca: data.product.brands || "S/M" };
         } catch (e) {}
         return null;
     }
 
     function agregarManual() {
-        const nombre = prompt("Nombre del producto:"); if (!nombre) return;
+        const nombre = prompt("Nombre:"); if (!nombre) return;
         const marca = prompt("Marca:", "Manual");
         procesarProducto(nombre, marca);
     }
@@ -175,7 +198,7 @@
         stopScan();
         let info = await buscarProducto(data.codeResult.code);
         if (!info) {
-            const nom = prompt("No reconocido. ¿Qué producto es?"); if(!nom) return;
+            const nom = prompt("No detectado. ¿Qué es?"); if(!nom) return;
             info = { nombre: nom, marca: "Escaneado" };
         }
         procesarProducto(info.nombre, info.marca);
