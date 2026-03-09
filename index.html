@@ -3,88 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EcoCesta Pro | Auto-Detect</title>
+    <title>EcoCesta | Smart Theme</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
     <style>
-        :root { --primary: #10b981; --bg: #0b0f1a; --card: #161d2f; --danger: #ef4444; --warning: #f59e0b; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh; }
+        /* Variables por defecto (Modo Claro) */
+        :root { 
+            --primary: #10b981; 
+            --bg: #f8fafc; 
+            --card: #ffffff; 
+            --text-main: #1e293b; 
+            --text-sec: #64748b; 
+            --btn-bg: #1e293b;
+            --btn-text: #ffffff;
+            --shadow: rgba(0,0,0,0.05);
+        }
+
+        /* Clase para Modo Oscuro */
+        .dark-mode {
+            --bg: #0b0f1a; 
+            --card: #161d2f; 
+            --text-main: #ffffff; 
+            --text-sec: #94a3b8; 
+            --btn-bg: #ffffff;
+            --btn-text: #000000;
+            --shadow: rgba(0,0,0,0.3);
+        }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg); 
+            color: var(--text-main); 
+            margin: 0; 
+            padding: 20px; 
+            display: flex; 
+            justify-content: center; 
+            min-height: 100vh;
+            transition: background 0.5s ease, color 0.5s ease;
+        }
+
         .app-container { width: 100%; max-width: 450px; padding-bottom: 140px; }
-        header { text-align: center; margin-bottom: 20px; }
-        h1 { color: var(--primary); margin: 0; font-size: 2.2rem; font-weight: 700; }
-        #msg { color: #94a3b8; font-size: 0.85rem; margin-top: 5px; min-height: 1.2em; }
+        header { text-align: center; margin-bottom: 30px; }
+        h1 { color: var(--primary); margin: 0; font-size: 2.2rem; font-weight: 800; }
+        #msg { color: var(--text-sec); font-size: 0.9rem; margin-top: 5px; }
 
         #interactive.viewport {
-            width: 100%; height: 250px; border-radius: 20px; overflow: hidden;
-            background: #000; margin-bottom: 20px; border: 2px solid var(--primary);
+            width: 100%; height: 250px; border-radius: 24px; overflow: hidden;
+            background: #000; margin-bottom: 25px; 
+            border: 4px solid var(--card);
+            box-shadow: 0 10px 25px var(--shadow);
             display: none; position: relative;
         }
         #interactive.viewport video { width: 100%; height: 100%; object-fit: cover; }
-        .laser { position: absolute; top: 50%; left: 0; width: 100%; height: 2px; background: red; box-shadow: 0 0 10px red; z-index: 10; }
+        .laser { position: absolute; top: 50%; left: 0; width: 100%; height: 2px; background: var(--primary); z-index: 10; }
 
-        .product-list { display: flex; flex-direction: column; gap: 10px; }
+        .product-list { display: flex; flex-direction: column; gap: 12px; }
         .card { 
-            background: var(--card); padding: 15px; border-radius: 18px; 
+            background: var(--card); padding: 18px; border-radius: 20px; 
             display: flex; justify-content: space-between; align-items: center; 
-            border: 1px solid rgba(255,255,255,0.05); animation: fadeIn 0.3s ease;
+            box-shadow: 0 4px 12px var(--shadow);
+            border: 1px solid rgba(128,128,128,0.1);
+            animation: fadeIn 0.4s ease-out;
         }
-        .info h3 { margin: 0; font-size: 1rem; color: #fff; text-transform: capitalize; }
-        .info p { margin: 3px 0 0; font-size: 0.8rem; color: #94a3b8; }
-        .status-dot { width: 10px; height: 10px; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px currentColor; }
+
+        .info h3 { margin: 0; font-size: 1.05rem; font-weight: 700; text-transform: capitalize; }
+        .info p { margin: 4px 0 0; font-size: 0.85rem; color: var(--text-sec); }
+        .status-dot { width: 12px; height: 12px; border-radius: 50%; margin-right: 12px; }
 
         .nav-actions {
-            position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%);
-            display: flex; gap: 10px; width: 90%; max-width: 400px; z-index: 1000;
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 12px; width: 90%; max-width: 400px; z-index: 1000;
         }
         .btn {
-            flex: 1; padding: 16px; border-radius: 50px; font-weight: 700; border: none;
-            cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 8px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            flex: 1; padding: 18px; border-radius: 20px; font-weight: 700; border: none;
+            cursor: pointer; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 8px;
         }
-        .btn-main { background: white; color: black; }
-        .btn-sec { background: var(--card); color: white; border: 1px solid rgba(255,255,255,0.1); }
-        .btn-delete { background: none; border: none; color: #4b5563; cursor: pointer; font-size: 1.1rem; padding: 5px; }
+        .btn-main { background: var(--btn-bg); color: var(--btn-text); box-shadow: 0 10px 20px var(--shadow); }
+        .btn-sec { background: var(--card); color: var(--text-main); border: 1px solid rgba(128,128,128,0.2); }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .btn-delete { background: rgba(128,128,128,0.1); border: none; color: var(--text-sec); cursor: pointer; border-radius: 50%; width: 30px; height: 30px; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body>
+<body id="body-tag">
 
 <div class="app-container">
     <header>
         <h1>EcoCesta</h1>
-        <p id="msg">Detección automática activada</p>
+        <p id="msg">Cargando modo inteligente...</p>
     </header>
     <div id="interactive" class="viewport"><div class="laser"></div></div>
     <div class="product-list" id="main-list"></div>
 </div>
 
 <div class="nav-actions">
-    <button class="btn btn-sec" onclick="agregarManual()">✍️ MANUAL</button>
-    <button class="btn btn-main" onclick="toggleScanner()" id="scanBtn">📸 ESCANEAR</button>
+    <button class="btn btn-sec" onclick="agregarManual()">✍️ Manual</button>
+    <button class="btn btn-main" onclick="toggleScanner()" id="scanBtn">📸 Escanear</button>
 </div>
 
 <script>
     let productos = JSON.parse(localStorage.getItem('ecocesta_data')) || [];
 
+    // --- LÓGICA DE MODO AUTOMÁTICO ---
+    function aplicarTema() {
+        const hora = new Date().getHours();
+        const body = document.getElementById('body-tag');
+        const msg = document.getElementById('msg');
+        
+        // De 6 PM (18) a 6 AM (6) es modo oscuro
+        if (hora >= 18 || hora < 6) {
+            body.classList.add('dark-mode');
+            msg.innerText = "Modo Noche Activado 🌙";
+        } else {
+            body.classList.remove('dark-mode');
+            msg.innerText = "Modo Día Activado ☀️";
+        }
+    }
+
     function render() {
         const list = document.getElementById('main-list');
         localStorage.setItem('ecocesta_data', JSON.stringify(productos));
-        
         if (productos.length === 0) {
-            list.innerHTML = `<p style="text-align:center; color:#4b5563; margin-top:40px;">🧺 Inventario vacío</p>`;
+            list.innerHTML = `<div style="text-align:center; padding-top:60px;"><p style="color:var(--text-sec);">Tu cesta está vacía</p></div>`;
             return;
         }
-
         list.innerHTML = '';
         productos.forEach((p, i) => {
             list.innerHTML += `
                 <div class="card">
                     <div style="display:flex; align-items:center;">
-                        <div class="status-dot" style="color:${p.color}; background:currentColor;"></div>
+                        <div class="status-dot" style="background-color:${p.color};"></div>
                         <div class="info">
                             <h3>${p.nombre}</h3>
-                            <p>${p.marca} • <span style="color:${p.color}">${p.vence}</span></p>
+                            <p>${p.marca} • <span style="color:${p.color}; font-weight:700;">${p.vence}</span></p>
                         </div>
                     </div>
                     <button class="btn-delete" onclick="eliminar(${i})">✕</button>
@@ -94,36 +146,20 @@
 
     function eliminar(i) { productos.splice(i, 1); render(); }
 
-    // --- CEREBRO DE DETECCIÓN AUTOMÁTICA ---
     function autoConfigurar(nombre) {
         const n = nombre.toLowerCase();
-        let dias = 14; 
-        let color = "#10b981"; // Verde (Abarrotes)
-
-        // Si detecta lácteos, fuerza la fecha al 28 de Marzo (19 días desde hoy 9 Mar)
+        let dias = 14; let color = "#10b981";
         if (n.includes("leche") || n.includes("crema") || n.includes("yogurt") || n.includes("queso") || n.includes("arroz")) {
-            dias = 19; 
-            color = "#f59e0b"; // Naranja (Lácteos/Perecederos medios)
-        } 
-        else if (n.includes("pollo") || n.includes("carne") || n.includes("pescado")) {
-            dias = 3;
-            color = "#ef4444"; // Rojo (Urgente)
+            dias = 19; color = "#f59e0b";
+        } else if (n.includes("pollo") || n.includes("carne") || n.includes("jamon")) {
+            dias = 5; color = "#ef4444";
         }
-        else if (n.includes("aceite") || n.includes("latas") || n.includes("frijol") || n.includes("pimienta")) {
-            dias = 180;
-            color = "#10b981"; // Verde (Larga vida)
-        }
-
         const f = new Date();
         f.setDate(f.getDate() + dias);
-        return { 
-            vence: f.toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' }),
-            color: color
-        };
+        return { vence: f.toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' }), color: color };
     }
 
     async function buscarProducto(codigo) {
-        document.getElementById('msg').innerText = "Identificando...";
         try {
             const res = await fetch(`https://world.openfoodfacts.org/api/v0/product/${codigo}.json`);
             const data = await res.json();
@@ -133,7 +169,7 @@
     }
 
     function agregarManual() {
-        const nombre = prompt("Nombre del producto:");
+        const nombre = prompt("Nombre:");
         if (!nombre) return;
         const marca = prompt("Marca:", "Genérico");
         const conf = autoConfigurar(nombre);
@@ -158,37 +194,24 @@
         Quagga.stop();
         document.getElementById('interactive').style.display = 'none';
         isScanning = false;
-        document.getElementById('msg').innerText = "Listo";
     }
 
     Quagga.onDetected(async (data) => {
-        const code = data.codeResult.code;
-        if (code.length < 12) return; 
-
+        if (data.codeResult.code.length < 12) return;
         stopScan();
-        let info = await buscarProducto(code);
-        
-        // Si no está en la nube, pedimos el nombre UNA sola vez
+        let info = await buscarProducto(data.codeResult.code);
         if (!info) {
-            const nom = prompt("No reconocido. ¿Qué producto es?");
+            const nom = prompt("No reconocido. ¿Nombre?");
             if(!nom) return;
-            info = { nombre: nom, marca: "Scanner" };
+            info = { nombre: nom, marca: "Escaneado" };
         }
-        
-        // Detecta automáticamente la fecha basándose en el nombre
         const conf = autoConfigurar(info.nombre);
-        
-        productos.unshift({ 
-            nombre: info.nombre, 
-            marca: info.marca, 
-            vence: conf.vence, 
-            color: conf.color 
-        });
-        
+        productos.unshift({ nombre: info.nombre, marca: info.marca, vence: conf.vence, color: conf.color });
         render();
-        document.getElementById('msg').innerText = "¡Agregado automáticamente!";
     });
 
+    // Iniciar tema y render
+    aplicarTema();
     render();
 </script>
 </body>
