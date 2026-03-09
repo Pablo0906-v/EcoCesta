@@ -11,104 +11,79 @@
             --primary: #10b981; --bg: #f8fafc; --card: #ffffff; 
             --text-main: #1e293b; --text-sec: #64748b; 
             --border: rgba(128,128,128,0.1); --shadow: 0 4px 12px rgba(0,0,0,0.03);
-            --danger: #ef4444; --warning: #f59e0b;
+            --danger: #ef4444; --warning: #f59e0b; --embutido: #f472b6;
         }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-main); margin: 0; padding: 0; }
         
-        /* LOGIN */
-        #login-screen { position: fixed; inset: 0; background: var(--bg); z-index: 5000; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .login-box { text-align: center; width: 100%; max-width: 320px; }
-        .login-box h2 { color: var(--primary); font-size: 2.2rem; margin-bottom: 30px; font-weight: 800; letter-spacing: -1px; }
-        .login-box input { width: 100%; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); border-radius: 12px; box-sizing: border-box; font-size: 1rem; }
-
-        /* APP LAYOUT */
-        #app-content { display: none; min-height: 100vh; flex-direction: column; padding-bottom: 100px; }
+        #app-content { display: flex; min-height: 100vh; flex-direction: column; padding-bottom: 110px; }
         header { padding: 25px; display: flex; justify-content: space-between; align-items: center; }
-        .avatar { width: 42px; height: 42px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text-main); font-weight: 700; font-size: 0.9rem; }
+        .avatar { width: 42px; height: 42px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; }
 
         .page { display: none; padding: 0 20px; animation: fadeIn 0.4s ease; width: 100%; max-width: 480px; align-self: center; box-sizing: border-box; }
         .page.active { display: block; }
 
-        /* DASHBOARD & GRÁFICA */
-        .stats-card { background: var(--card); padding: 25px; border-radius: 28px; box-shadow: var(--shadow); margin-bottom: 25px; border: 1px solid var(--border); }
-        .chart-container { position: relative; height: 220px; margin: 10px 0; }
+        .stats-card { background: var(--card); padding: 20px; border-radius: 24px; box-shadow: var(--shadow); margin-bottom: 20px; border: 1px solid var(--border); }
+        .chart-container { position: relative; height: 200px; margin: 10px 0; }
 
-        /* BOTONES ACCIÓN */
-        .btn-large { width: 100%; padding: 18px; border-radius: 18px; border: none; font-weight: 700; font-size: 0.95rem; cursor: pointer; margin-bottom: 12px; transition: 0.2s; }
+        .btn-large { width: 100%; padding: 18px; border-radius: 18px; border: none; font-weight: 700; cursor: pointer; margin-bottom: 12px; }
         .btn-scan { background: var(--primary); color: white; }
         .btn-manual { background: #1e293b; color: white; }
-        .btn-large:active { transform: scale(0.98); }
 
-        /* ALACENA ITEMS (Diseño sin Emojis) */
         .product-card { background: var(--card); padding: 16px; border-radius: 20px; display: flex; align-items: center; box-shadow: var(--shadow); border: 1px solid var(--border); margin-bottom: 12px; gap: 16px; position: relative; }
-        .category-indicator { width: 48px; height: 48px; border-radius: 14px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; opacity: 0.8; }
+        .category-indicator { width: 12px; height: 45px; border-radius: 6px; flex-shrink: 0; }
         
-        .vence-badge { font-size: 0.72rem; font-weight: 800; padding: 4px 10px; border-radius: 20px; margin-top: 6px; display: inline-block; text-transform: uppercase; }
+        .vence-badge { font-size: 0.7rem; font-weight: 800; padding: 4px 10px; border-radius: 20px; margin-top: 6px; display: inline-block; }
 
-        /* NAV BAR */
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 15px 0 25px; border-top: 1px solid var(--border); box-shadow: 0 -5px 15px rgba(0,0,0,0.02); }
-        .nav-item { border: none; background: none; color: #94a3b8; font-size: 0.65rem; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
+        .recipe-item { border-left: 4px solid var(--primary); padding-left: 15px; margin-bottom: 20px; }
+        .recipe-item h4 { margin: 0 0 5px 0; font-size: 1rem; }
+        .recipe-item p { margin: 0; font-size: 0.85rem; color: var(--text-sec); line-height: 1.4; }
+
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 15px 0 25px; border-top: 1px solid var(--border); }
+        .nav-item { border: none; background: none; color: #94a3b8; font-size: 0.65rem; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 4px; }
         .nav-item.active { color: var(--primary); }
-        .nav-dot { width: 4px; height: 4px; border-radius: 50%; background: transparent; }
-        .nav-item.active .nav-dot { background: var(--primary); }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-<div id="login-screen">
-    <div class="login-box">
-        <h2>EcoCesta</h2>
-        <input type="text" id="u-name" placeholder="Ingresa tu nombre">
-        <button class="btn-large btn-scan" onclick="doLogin()">Comenzar</button>
-    </div>
-</div>
-
 <div id="app-content">
     <header>
-        <div><h1 style="margin:0; font-size:1.4rem; letter-spacing:-0.5px;"><span style="color:var(--primary)">Eco</span>Cesta</h1></div>
-        <div class="avatar" id="av-letra">D</div>
+        <div><h1 style="margin:0; font-size:1.4rem;"><span style="color:var(--primary)">Eco</span>Cesta</h1></div>
+        <div class="avatar">D</div>
     </header>
 
     <div id="page-home" class="page active">
         <div class="stats-card">
-            <p style="font-weight:700; color:var(--text-sec); font-size:0.75rem; text-transform:uppercase; text-align:center; margin-top:0;">Balance de Alimentos</p>
-            <div class="chart-container">
-                <canvas id="mainChart"></canvas>
-            </div>
+            <div class="chart-container"><canvas id="mainChart"></canvas></div>
         </div>
-        <div style="margin-top: 10px;">
-            <button class="btn-large btn-scan" onclick="fakeScan()">Escanear Ticket</button>
-            <button class="btn-large btn-manual" onclick="addManual()">Agregar Manualmente</button>
-        </div>
+        <button class="btn-large btn-scan" onclick="fakeScan()">Escanear Ticket</button>
+        <button class="btn-large btn-manual" onclick="addManual()">Agregar Manualmente</button>
     </div>
 
     <div id="page-recetas" class="page">
-        <h3 style="margin-bottom:20px; font-weight:800;">Sugerencias del Chef IA</h3>
+        <h3 style="margin-bottom:20px;">Ideas para cocinar hoy</h3>
         <div id="recipe-box"></div>
     </div>
 
     <div id="page-alacena" class="page">
-        <h3 style="margin-bottom:20px; font-weight:800;">Mi Alacena</h3>
+        <h3 style="margin-bottom:20px;">Mi Alacena</h3>
         <div id="alacena-list"></div>
     </div>
 
     <div id="page-perfil" class="page">
-        <h3 style="margin-bottom:20px; font-weight:800;">Configuración</h3>
+        <h3 style="margin-bottom:20px;">Perfil</h3>
         <div class="stats-card">
-            <p style="margin-top:0;"><strong>Usuario:</strong> <span id="prof-name"></span></p>
-            <p><strong>Cuenta:</strong> Personal Free</p>
-            <hr style="border:0; border-top:1px solid var(--border); margin:20px 0;">
-            <button onclick="localStorage.clear(); location.reload();" style="color:var(--danger); border:none; background:none; font-weight:700; cursor:pointer; padding:0;">Cerrar Sesión</button>
+            <p><strong>Diego Alejandro</strong></p>
+            <p style="font-size:0.9rem; color:var(--text-sec)">Ingeniería en Desarrollo de Aplicaciones</p>
         </div>
     </div>
 
     <nav class="bottom-nav">
-        <button class="nav-item active" onclick="nav('home', this)">Inicio<div class="nav-dot"></div></button>
-        <button class="nav-item" onclick="nav('recetas', this)">Recetas<div class="nav-dot"></div></button>
-        <button class="nav-item" onclick="nav('alacena', this)">Alacena<div class="nav-dot"></div></button>
-        <button class="nav-item" onclick="nav('perfil', this)">Perfil<div class="nav-dot"></div></button>
+        <button class="nav-item active" onclick="nav('home', this)">Inicio</button>
+        <button class="nav-item" onclick="nav('recetas', this)">Recetas</button>
+        <button class="nav-item" onclick="nav('alacena', this)">Alacena</button>
+        <button class="nav-item" onclick="nav('perfil', this)">Perfil</button>
     </nav>
 </div>
 
@@ -116,27 +91,13 @@
     let productos = JSON.parse(localStorage.getItem('eco_items')) || [];
     let chart = null;
 
+    // --- CORRECCIÓN: NUEVA CATEGORÍA EMBUTIDOS ---
     const CATS = {
+        embutido: { k: ['jamon','salchicha','salami','chorizo','mortadela'], d: 10, c: '#f472b6', l: 'Embutido' },
         lacteo: { k: ['leche','crema','queso','yogur'], d: 15, c: '#f59e0b', l: 'Lácteo' },
-        proteina: { k: ['pollo','carne','res','puerco','pescado','jamon'], d: 4, c: '#ef4444', l: 'Proteína' },
+        proteina: { k: ['pollo','carne','res','puerco','pescado'], d: 4, c: '#ef4444', l: 'Proteína' },
         despensa: { k: ['arroz','frijol','pasta','pimienta','sal','aceite'], d: 180, c: '#10b981', l: 'Despensa' },
         otros: { k: [], d: 20, c: '#64748b', l: 'Otros' }
-    };
-
-    function doLogin() {
-        const n = document.getElementById('u-name').value;
-        if(n) { localStorage.setItem('eco_user', n); location.reload(); }
-    }
-
-    window.onload = () => {
-        const user = localStorage.getItem('eco_user');
-        if(user) {
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('app-content').style.display = 'flex';
-            document.getElementById('av-letra').innerText = user[0].toUpperCase();
-            document.getElementById('prof-name').innerText = user;
-            updateUI();
-        }
     };
 
     function nav(id, el) {
@@ -154,18 +115,17 @@
 
     function renderAlacena() {
         const box = document.getElementById('alacena-list');
-        box.innerHTML = productos.length ? '' : '<p style="color:gray;text-align:center;padding:40px 0;">Tu alacena está vacía.</p>';
-        
+        box.innerHTML = productos.length ? '' : '<p style="color:gray;text-align:center">Vacío</p>';
         productos.forEach((p, i) => {
             box.innerHTML += `
                 <div class="product-card">
                     <div class="category-indicator" style="background:${p.c}"></div>
                     <div style="flex:1">
-                        <h4 style="margin:0; font-size:1rem; font-weight:700;">${p.n}</h4>
+                        <h4 style="margin:0">${p.n}</h4>
                         <p style="margin:2px 0; font-size:0.75rem; color:var(--text-sec)">${p.m} • ${p.fi}</p>
                         <span class="vence-badge" style="background:${p.c}15; color:${p.c}">Vence: ${p.vf}</span>
                     </div>
-                    <button onclick="del(${i})" style="border:none;background:none;color:#cbd5e1;cursor:pointer;font-size:1.1rem;">✕</button>
+                    <button onclick="del(${i})" style="border:none;background:none;color:#cbd5e1;cursor:pointer">✕</button>
                 </div>`;
         });
         localStorage.setItem('eco_items', JSON.stringify(productos));
@@ -173,27 +133,16 @@
 
     function updateChart() {
         const ctx = document.getElementById('mainChart').getContext('2d');
-        const counts = { 'Lácteo':0, 'Proteína':0, 'Despensa':0, 'Otros':0 };
+        const counts = { 'Embutido':0, 'Lácteo':0, 'Proteína':0, 'Despensa':0, 'Otros':0 };
         productos.forEach(p => counts[p.l]++);
-
         if(chart) chart.destroy();
         chart = new Chart(ctx, {
             type: 'doughnut',
             data: {
                 labels: Object.keys(counts),
-                datasets: [{ 
-                    data: Object.values(counts), 
-                    backgroundColor: ['#f59e0b','#ef4444','#10b981','#64748b'], 
-                    borderWidth: 5,
-                    borderColor: '#ffffff',
-                    hoverOffset: 4
-                }]
+                datasets: [{ data: Object.values(counts), backgroundColor: ['#f472b6','#f59e0b','#ef4444','#10b981','#64748b'], borderWidth: 0 }]
             },
-            options: { 
-                cutout: '75%',
-                plugins: { legend: { display: true, position: 'bottom', labels: { usePointStyle: true, padding: 20, font: { size: 11, weight: '600' } } } },
-                maintainAspectRatio: false
-            }
+            options: { cutout: '70%', plugins: { legend: { position: 'bottom' } }, maintainAspectRatio: false }
         });
     }
 
@@ -204,46 +153,65 @@
         const c = Object.values(CATS).find(ct => ct.k.some(k => n.toLowerCase().includes(k))) || CATS.otros;
         const hoy = new Date();
         const v = new Date(); v.setDate(hoy.getDate() + c.d);
-        
-        productos.unshift({
-            n, m: m || 'S/M', 
-            fi: hoy.toLocaleDateString('es-MX', {day:'numeric', month:'short'}),
-            vf: v.toLocaleDateString('es-MX', {day:'2-digit', month:'2-digit', year:'numeric'}),
-            c: c.c, l: c.l
-        });
+        productos.unshift({ n, m: m || 'S/M', fi: hoy.toLocaleDateString('es-MX', {day:'numeric', month:'short'}), vf: v.toLocaleDateString('es-MX', {day:'2-digit', month:'2-digit', year:'numeric'}), c: c.c, l: c.l });
         updateUI();
     }
 
-    function fakeScan() {
-        const n = prompt("Escribe el nombre del producto para simular el escaneo:");
-        if(n) addManualFromScan(n);
-    }
-
+    function fakeScan() { const n = prompt("Simular escaneo:"); if(n) addManualFromScan(n); }
     function addManualFromScan(n) {
         const c = Object.values(CATS).find(ct => ct.k.some(k => n.toLowerCase().includes(k))) || CATS.otros;
         const hoy = new Date();
         const v = new Date(); v.setDate(hoy.getDate() + c.d);
-        productos.unshift({
-            n, m: 'Escaneado', 
-            fi: hoy.toLocaleDateString('es-MX', {day:'numeric', month:'short'}),
-            vf: v.toLocaleDateString('es-MX', {day:'2-digit', month:'2-digit', year:'numeric'}),
-            c: c.c, l: c.l
-        });
+        productos.unshift({ n, m: 'Escaneado', fi: hoy.toLocaleDateString('es-MX', {day:'numeric', month:'short'}), vf: v.toLocaleDateString('es-MX', {day:'2-digit', month:'2-digit', year:'numeric'}), c: c.c, l: c.l });
         updateUI();
     }
 
-    function del(i) { if(confirm('¿Eliminar de la alacena?')) { productos.splice(i, 1); updateUI(); } }
+    function del(i) { productos.splice(i, 1); updateUI(); }
 
+    // --- CORRECCIÓN: MÚLTIPLES OPCIONES DE RECETAS ---
     function genRecetas() {
         const box = document.getElementById('recipe-box');
-        const prote = productos.find(p => p.l === 'Proteína');
-        box.innerHTML = prote ? `
-            <div class="stats-card" style="border-left:6px solid ${prote.c}">
-                <h4 style="margin:0 0 10px 0;">Cena sugerida</h4>
-                <p style="font-size:0.9rem; color:var(--text-main); line-height:1.5;">Puedes preparar un salteado rápido usando tu <strong>${prote.n}</strong> y combinarlo con los productos de despensa que tienes disponibles.</p>
-                <div style="margin-top:15px; font-size:0.8rem; font-weight:700; color:var(--primary);">Ver pasos completos →</div>
-            </div>` : '<p style="text-align:center; color:gray; padding:20px;">Agrega proteínas o vegetales para recibir recetas.</p>';
+        box.innerHTML = '';
+        
+        const tieneEmbutido = productos.find(p => p.l === 'Embutido');
+        const tieneLacteo = productos.find(p => p.l === 'Lácteo');
+        const tieneProte = productos.find(p => p.l === 'Proteína');
+
+        let recetasEncontradas = 0;
+
+        if (tieneEmbutido) {
+            box.innerHTML += `
+                <div class="recipe-item">
+                    <h4>Sándwich Gourmet</h4>
+                    <p>Aprovecha tu <strong>${tieneEmbutido.n}</strong>. Tuesta el pan con un poco de mantequilla y agrega los lácteos que tienes en tu alacena.</p>
+                </div>`;
+            recetasEncontradas++;
+        }
+
+        if (tieneProte) {
+            box.innerHTML += `
+                <div class="recipe-item" style="border-left-color: var(--danger)">
+                    <h4>Bowl de Proteína</h4>
+                    <p>Usa tu <strong>${tieneProte.n}</strong> salteado con especias de tu despensa. Es ideal para una comida rápida y nutritiva.</p>
+                </div>`;
+            recetasEncontradas++;
+        }
+
+        if (tieneLacteo) {
+            box.innerHTML += `
+                <div class="recipe-item" style="border-left-color: var(--warning)">
+                    <h4>Pasta Cremosa</h4>
+                    <p>Combina la pasta de tu despensa con tu <strong>${tieneLacteo.n}</strong> para una salsa suave. Añade pimienta para resaltar el sabor.</p>
+                </div>`;
+            recetasEncontradas++;
+        }
+
+        if (recetasEncontradas === 0) {
+            box.innerHTML = '<p style="text-align:center; color:gray;">Agrega ingredientes para ver opciones de cocina.</p>';
+        }
     }
+
+    window.onload = updateUI;
 </script>
 </body>
 </html>
