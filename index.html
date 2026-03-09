@@ -2,216 +2,124 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EcoCesta | Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>EcoCesta Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { 
-            --primary: #10b981; --bg: #f8fafc; --card: #ffffff; 
-            --text-main: #1e293b; --text-sec: #64748b; 
-            --border: rgba(128,128,128,0.1); --shadow: 0 4px 12px rgba(0,0,0,0.03);
-            --danger: #ef4444; --warning: #f59e0b; --embutido: #f472b6;
+            --primary: #5cb85c; --bg: #f2f9f2; --card: #ffffff; 
+            --text-main: #2d3436; --text-sec: #636e72; 
+            --urgent: #ff7675; --next: #fab1a0; --safe: #55efc4;
         }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-main); margin: 0; padding: 0; }
         
-        #app-content { display: flex; min-height: 100vh; flex-direction: column; padding-bottom: 110px; }
-        header { padding: 25px; display: flex; justify-content: space-between; align-items: center; }
-        .avatar { width: 42px; height: 42px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; }
-
-        .page { display: none; padding: 0 20px; animation: fadeIn 0.4s ease; width: 100%; max-width: 480px; align-self: center; box-sizing: border-box; }
+        header { padding: 30px 20px 10px; text-align: center; }
+        .logo-text { color: var(--primary); font-size: 2.2rem; font-weight: 800; margin: 0; letter-spacing: -1px; }
+        
+        .page { display: none; padding: 0 18px; animation: slideUp 0.3s ease-out; }
         .page.active { display: block; }
 
-        .stats-card { background: var(--card); padding: 20px; border-radius: 24px; box-shadow: var(--shadow); margin-bottom: 20px; border: 1px solid var(--border); }
-        .chart-container { position: relative; height: 200px; margin: 10px 0; }
-
-        .btn-large { width: 100%; padding: 18px; border-radius: 18px; border: none; font-weight: 700; cursor: pointer; margin-bottom: 12px; }
-        .btn-scan { background: var(--primary); color: white; }
-        .btn-manual { background: #1e293b; color: white; }
-
-        .product-card { background: var(--card); padding: 16px; border-radius: 20px; display: flex; align-items: center; box-shadow: var(--shadow); border: 1px solid var(--border); margin-bottom: 12px; gap: 16px; position: relative; }
-        .category-indicator { width: 12px; height: 45px; border-radius: 6px; flex-shrink: 0; }
+        /* BOTÓN ESCANEAR REAL */
+        .scan-container { display: flex; justify-content: center; margin: 30px 0; position: relative; }
+        .btn-scan-circle { width: 140px; height: 140px; background: linear-gradient(135deg, #5cb85c, #4cae4c); border-radius: 50%; border: 8px solid white; box-shadow: 0 10px 25px rgba(92,184,92,0.3); color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 800; cursor: pointer; position: relative; overflow: hidden; }
         
-        .vence-badge { font-size: 0.7rem; font-weight: 800; padding: 4px 10px; border-radius: 20px; margin-top: 6px; display: inline-block; }
+        /* Input invisible para activar cámara */
+        #camera-input { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
 
-        .recipe-item { border-left: 4px solid var(--primary); padding-left: 15px; margin-bottom: 20px; }
-        .recipe-item h4 { margin: 0 0 5px 0; font-size: 1rem; }
-        .recipe-item p { margin: 0; font-size: 0.85rem; color: var(--text-sec); line-height: 1.4; }
+        /* FORMULARIO PERFIL */
+        .profile-card { background: white; padding: 25px; border-radius: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .profile-input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #eee; border-radius: 12px; font-family: 'Inter'; box-sizing: border-box; }
+        .btn-save { background: var(--primary); color: white; border: none; width: 100%; padding: 15px; border-radius: 12px; font-weight: 700; margin-top: 10px; }
 
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 15px 0 25px; border-top: 1px solid var(--border); }
-        .nav-item { border: none; background: none; color: #94a3b8; font-size: 0.65rem; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-        .nav-item.active { color: var(--primary); }
+        /* NAVEGACIÓN */
+        .nav-bar { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 15px 0 30px; border-top: 1px solid rgba(0,0,0,0.05); }
+        .nav-btn { border: none; background: none; color: #b2bec3; font-size: 0.65rem; font-weight: 700; cursor: pointer; }
+        .nav-btn.active { color: var(--primary); }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
 <div id="app-content">
     <header>
-        <div><h1 style="margin:0; font-size:1.4rem;"><span style="color:var(--primary)">Eco</span>Cesta</h1></div>
-        <div class="avatar">D</div>
+        <p class="logo-text">EcoCesta</p>
+        <h2 id="display-name" style="font-size: 1.2rem; margin-top: 10px;">¡Hola, Diego!</h2>
     </header>
 
-    <div id="page-home" class="page active">
-        <div class="stats-card">
-            <div class="chart-container"><canvas id="mainChart"></canvas></div>
+    <div id="page-inicio" class="page active">
+        <div class="scan-container">
+            <div class="btn-scan-circle">
+                <div style="font-size: 2rem;">📸</div>
+                <span>ESCANEAR<br>TICKET</span>
+                <input type="file" accept="image/*" capture="camera" id="camera-input" onchange="procesarFoto(event)">
+            </div>
         </div>
-        <button class="btn-large btn-scan" onclick="fakeScan()">Escanear Ticket</button>
-        <button class="btn-large btn-manual" onclick="addManual()">Agregar Manualmente</button>
-    </div>
-
-    <div id="page-recetas" class="page">
-        <h3 style="margin-bottom:20px;">Ideas para cocinar hoy</h3>
-        <div id="recipe-box"></div>
-    </div>
-
-    <div id="page-alacena" class="page">
-        <h3 style="margin-bottom:20px;">Mi Alacena</h3>
-        <div id="alacena-list"></div>
+        <p style="text-align: center; color: var(--text-sec); font-size: 0.8rem;">Ahorro Semanal: <strong>$15 USD</strong></p>
     </div>
 
     <div id="page-perfil" class="page">
-        <h3 style="margin-bottom:20px;">Perfil</h3>
-        <div class="stats-card">
-            <p><strong>Diego Alejandro</strong></p>
-            <p style="font-size:0.9rem; color:var(--text-sec)">Ingeniería en Desarrollo de Aplicaciones</p>
+        <h3 style="margin-bottom: 20px;">Mi Perfil</h3>
+        <div class="profile-card">
+            <label style="font-size: 0.8rem; font-weight: 700;">NOMBRE</label>
+            <input type="text" id="edit-name" class="profile-input" placeholder="Tu nombre">
+            
+            <label style="font-size: 0.8rem; font-weight: 700;">META DE AHORRO ($)</label>
+            <input type="number" id="edit-goal" class="profile-input" placeholder="Ej: 50">
+            
+            <button class="btn-save" onclick="guardarPerfil()">Guardar Cambios</button>
+            <button onclick="cerrarSesion()" style="margin-top: 20px; color: #ff7675; border: none; background: none; width: 100%; font-size: 0.8rem;">Cerrar Sesión</button>
         </div>
     </div>
 
-    <nav class="bottom-nav">
-        <button class="nav-item active" onclick="nav('home', this)">Inicio</button>
-        <button class="nav-item" onclick="nav('recetas', this)">Recetas</button>
-        <button class="nav-item" onclick="nav('alacena', this)">Alacena</button>
-        <button class="nav-item" onclick="nav('perfil', this)">Perfil</button>
+    <nav class="nav-bar">
+        <button class="nav-btn active" onclick="nav('inicio', this)">INICIO</button>
+        <button class="nav-btn" onclick="nav('perfil', this)">PERFIL</button>
     </nav>
 </div>
 
 <script>
-    let productos = JSON.parse(localStorage.getItem('eco_items')) || [];
-    let chart = null;
+    // Cargar datos guardados
+    let userData = JSON.parse(localStorage.getItem('eco_user_data')) || { name: 'Diego', goal: 15 };
 
-    // --- CORRECCIÓN: NUEVA CATEGORÍA EMBUTIDOS ---
-    const CATS = {
-        embutido: { k: ['jamon','salchicha','salami','chorizo','mortadela'], d: 10, c: '#f472b6', l: 'Embutido' },
-        lacteo: { k: ['leche','crema','queso','yogur'], d: 15, c: '#f59e0b', l: 'Lácteo' },
-        proteina: { k: ['pollo','carne','res','puerco','pescado'], d: 4, c: '#ef4444', l: 'Proteína' },
-        despensa: { k: ['arroz','frijol','pasta','pimienta','sal','aceite'], d: 180, c: '#10b981', l: 'Despensa' },
-        otros: { k: [], d: 20, c: '#64748b', l: 'Otros' }
-    };
+    function init() {
+        document.getElementById('display-name').innerText = `¡Hola, ${userData.name}!`;
+        document.getElementById('edit-name').value = userData.name;
+        document.getElementById('edit-goal').value = userData.goal;
+    }
 
     function nav(id, el) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
         document.getElementById(`page-${id}`).classList.add('active');
         el.classList.add('active');
-        if(id === 'recetas') genRecetas();
     }
 
-    function updateUI() {
-        renderAlacena();
-        updateChart();
+    function guardarPerfil() {
+        userData.name = document.getElementById('edit-name').value;
+        userData.goal = document.getElementById('edit-goal').value;
+        localStorage.setItem('eco_user_data', JSON.stringify(userData));
+        init();
+        alert("¡Datos actualizados!");
+        nav('inicio', document.querySelector('.nav-btn'));
     }
 
-    function renderAlacena() {
-        const box = document.getElementById('alacena-list');
-        box.innerHTML = productos.length ? '' : '<p style="color:gray;text-align:center">Vacío</p>';
-        productos.forEach((p, i) => {
-            box.innerHTML += `
-                <div class="product-card">
-                    <div class="category-indicator" style="background:${p.c}"></div>
-                    <div style="flex:1">
-                        <h4 style="margin:0">${p.n}</h4>
-                        <p style="margin:2px 0; font-size:0.75rem; color:var(--text-sec)">${p.m} • ${p.fi}</p>
-                        <span class="vence-badge" style="background:${p.c}15; color:${p.c}">Vence: ${p.vf}</span>
-                    </div>
-                    <button onclick="del(${i})" style="border:none;background:none;color:#cbd5e1;cursor:pointer">✕</button>
-                </div>`;
-        });
-        localStorage.setItem('eco_items', JSON.stringify(productos));
-    }
-
-    function updateChart() {
-        const ctx = document.getElementById('mainChart').getContext('2d');
-        const counts = { 'Embutido':0, 'Lácteo':0, 'Proteína':0, 'Despensa':0, 'Otros':0 };
-        productos.forEach(p => counts[p.l]++);
-        if(chart) chart.destroy();
-        chart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: Object.keys(counts),
-                datasets: [{ data: Object.values(counts), backgroundColor: ['#f472b6','#f59e0b','#ef4444','#10b981','#64748b'], borderWidth: 0 }]
-            },
-            options: { cutout: '70%', plugins: { legend: { position: 'bottom' } }, maintainAspectRatio: false }
-        });
-    }
-
-    function addManual() {
-        const n = prompt("Producto:");
-        if(!n) return;
-        const m = prompt("Marca:");
-        const c = Object.values(CATS).find(ct => ct.k.some(k => n.toLowerCase().includes(k))) || CATS.otros;
-        const hoy = new Date();
-        const v = new Date(); v.setDate(hoy.getDate() + c.d);
-        productos.unshift({ n, m: m || 'S/M', fi: hoy.toLocaleDateString('es-MX', {day:'numeric', month:'short'}), vf: v.toLocaleDateString('es-MX', {day:'2-digit', month:'2-digit', year:'numeric'}), c: c.c, l: c.l });
-        updateUI();
-    }
-
-    function fakeScan() { const n = prompt("Simular escaneo:"); if(n) addManualFromScan(n); }
-    function addManualFromScan(n) {
-        const c = Object.values(CATS).find(ct => ct.k.some(k => n.toLowerCase().includes(k))) || CATS.otros;
-        const hoy = new Date();
-        const v = new Date(); v.setDate(hoy.getDate() + c.d);
-        productos.unshift({ n, m: 'Escaneado', fi: hoy.toLocaleDateString('es-MX', {day:'numeric', month:'short'}), vf: v.toLocaleDateString('es-MX', {day:'2-digit', month:'2-digit', year:'numeric'}), c: c.c, l: c.l });
-        updateUI();
-    }
-
-    function del(i) { productos.splice(i, 1); updateUI(); }
-
-    // --- CORRECCIÓN: MÚLTIPLES OPCIONES DE RECETAS ---
-    function genRecetas() {
-        const box = document.getElementById('recipe-box');
-        box.innerHTML = '';
-        
-        const tieneEmbutido = productos.find(p => p.l === 'Embutido');
-        const tieneLacteo = productos.find(p => p.l === 'Lácteo');
-        const tieneProte = productos.find(p => p.l === 'Proteína');
-
-        let recetasEncontradas = 0;
-
-        if (tieneEmbutido) {
-            box.innerHTML += `
-                <div class="recipe-item">
-                    <h4>Sándwich Gourmet</h4>
-                    <p>Aprovecha tu <strong>${tieneEmbutido.n}</strong>. Tuesta el pan con un poco de mantequilla y agrega los lácteos que tienes en tu alacena.</p>
-                </div>`;
-            recetasEncontradas++;
-        }
-
-        if (tieneProte) {
-            box.innerHTML += `
-                <div class="recipe-item" style="border-left-color: var(--danger)">
-                    <h4>Bowl de Proteína</h4>
-                    <p>Usa tu <strong>${tieneProte.n}</strong> salteado con especias de tu despensa. Es ideal para una comida rápida y nutritiva.</p>
-                </div>`;
-            recetasEncontradas++;
-        }
-
-        if (tieneLacteo) {
-            box.innerHTML += `
-                <div class="recipe-item" style="border-left-color: var(--warning)">
-                    <h4>Pasta Cremosa</h4>
-                    <p>Combina la pasta de tu despensa con tu <strong>${tieneLacteo.n}</strong> para una salsa suave. Añade pimienta para resaltar el sabor.</p>
-                </div>`;
-            recetasEncontradas++;
-        }
-
-        if (recetasEncontradas === 0) {
-            box.innerHTML = '<p style="text-align:center; color:gray;">Agrega ingredientes para ver opciones de cocina.</p>';
+    function procesarFoto(event) {
+        const file = event.target.files[0];
+        if (file) {
+            alert("Foto capturada con éxito. Procesando ticket con IA...");
+            // Aquí en el futuro conectarías con un servicio de OCR
         }
     }
 
-    window.onload = updateUI;
+    function cerrarSesion() {
+        if(confirm("¿Seguro que quieres salir?")) {
+            localStorage.clear();
+            location.reload();
+        }
+    }
+
+    window.onload = init;
 </script>
 </body>
 </html>
